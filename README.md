@@ -1,4 +1,4 @@
-# zadanie
+# Zadanie
 
 ## Project setup
 ```
