@@ -1,4 +1,4 @@
-{
+git{
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -13,7 +13,8 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "vuetify"
     ],
     "paths": {
       "@/*": [

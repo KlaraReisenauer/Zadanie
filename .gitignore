@@ -3,8 +3,6 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 /dist
-package-lock.json
-package.json
 
 # local env files
 .env.local

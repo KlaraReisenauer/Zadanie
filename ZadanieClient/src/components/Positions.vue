@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="desserts"
+    :items="positions"
     :search="search"
     sort-by="name"
     class="elevation-1"
@@ -12,12 +12,12 @@
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        ></v-text-field>
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -59,7 +59,7 @@
               <v-btn color="blue darken-1" text @click="closeDelete"
                 >Cancel</v-btn
               >
-              <v-btn color="primary"  class="mb-2" @click="deleteItemConfirm"
+              <v-btn color="primary" class="mb-2" @click="deleteItemConfirm"
                 >OK</v-btn
               >
               <v-spacer></v-spacer>
@@ -69,14 +69,26 @@
       </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
-        <v-btn class="mx-2" fab dark small color="primary"
-        @click="editItem(item)">
-            <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn class="mx-2" fab dark small color="error"
-        @click="deleteItem(item)">
-            <v-icon>mdi-delete</v-icon>
-        </v-btn>
+      <v-btn
+        class="mx-2"
+        fab
+        dark
+        small
+        color="primary"
+        @click="editItem(item)"
+      >
+        <v-icon>mdi-pencil</v-icon>
+      </v-btn>
+      <v-btn
+        class="mx-2"
+        fab
+        dark
+        small
+        color="error"
+        @click="deleteItem(item)"
+      >
+        <v-icon>mdi-delete</v-icon>
+      </v-btn>
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="initialize"> Reset </v-btn>
@@ -85,6 +97,10 @@
 </template>
 
 <script>
+import { Position } from "../classes/position";
+
+let position = new Position();
+
 export default {
   data: () => ({
     search: "",
@@ -99,7 +115,7 @@ export default {
       },
       { text: "", value: "actions", sortable: false },
     ],
-    desserts: [],
+    positions: [],
     editedIndex: -1,
     editedItem: {
       name: "",
@@ -138,48 +154,23 @@ export default {
 
   methods: {
     initialize() {
-      this.desserts = [
-          {
-              id: 1,
-              name: "Ine",
-          },
-          {
-              id: 2,
-              name: "Tester",
-          },
-          {
-              id: 3,
-              name: "Programator",
-          },
-          {
-              id: 4,
-              name: "Support",
-          },
-          {
-              id: 5,
-              name: "Analytik",
-          },
-          {
-              id: 6,
-              name: "Obchodnik",
-          }
-      ];
+      this.positions = position.loadPositions();
     },
 
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.positions.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
 
     deleteItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.positions.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
 
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1);
+      this.positions.splice(this.editedIndex, 1);
       this.closeDelete();
     },
 
@@ -194,6 +185,7 @@ export default {
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
+        position.deletePosition(this.editedItem);
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
@@ -201,9 +193,11 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        position.editPosition(this.editItem);
+        Object.assign(this.positions[this.editedIndex], this.editedItem);
       } else {
-        this.desserts.push(this.editedItem);
+        let positionWithId = position.addNewPosition(this.editedItem.name);
+        this.positions.push(positionWithId);
       }
       this.close();
     },
@@ -212,5 +206,4 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-
 </style>
