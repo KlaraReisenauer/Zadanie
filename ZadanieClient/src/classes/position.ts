@@ -48,6 +48,10 @@ export class Position {
     }
 
     public deletePosition(position: IPosition) {
+        if (position.id === 0 && position.name === ''){
+            return;
+        }
+
         position.removedOn = new Date();
         this.removePosition(position);
     }
@@ -64,10 +68,6 @@ export class Position {
 
     // function for sending data to API for deleting position
     private removePosition(position: IPosition) { }
-
-    private prepareRequest(position: IPosition, requestType: string) {
-
-    }
     
     //function for mapping result from API to interface
     private mapApiResult() { }

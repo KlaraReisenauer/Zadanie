@@ -110,7 +110,7 @@ export default {
       {
         text: "Position",
         align: "start",
-        sortable: false,
+        sortable: true,
         value: "name",
       },
       { text: "", value: "actions", sortable: false },
@@ -118,18 +118,12 @@ export default {
     positions: [],
     editedIndex: -1,
     editedItem: {
+      id: 0,
       name: "",
-      calories: 0,
-      fat: 0,
-      carbs: 0,
-      protein: 0,
     },
     defaultItem: {
+      id: 0,
       name: "",
-      calories: 0,
-      fat: 0,
-      carbs: 0,
-      protein: 0,
     },
   }),
 
@@ -193,8 +187,10 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        position.editPosition(this.editItem);
-        Object.assign(this.positions[this.editedIndex], this.editedItem);
+        if (this.editedItem.name !== this.positions[this.editedIndex].name) {
+          position.editPosition(this.editedItem);
+          Object.assign(this.positions[this.editedIndex], this.editedItem);
+        }
       } else {
         let positionWithId = position.addNewPosition(this.editedItem.name);
         this.positions.push(positionWithId);

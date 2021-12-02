@@ -3,7 +3,7 @@
     :headers="headers"
     :items="employees"
     :search="search"
-    sort-by="fullName"
+    sort-by="fullname"
     class="elevation-1"
   >
     <template v-slot:top>
@@ -12,12 +12,12 @@
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        ></v-text-field>
         <v-dialog v-model="dialog" max-width="800px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -62,7 +62,8 @@
                       transition="scale-transition"
                       offset-y
                       min-width="auto"
-                    >
+                      
+                    ><!-- :disabled="editingModeOpen" -->
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="editedItem.dateOfBirth"
@@ -71,9 +72,12 @@
                           readonly
                           v-bind="attrs"
                           v-on="on"
+                          :disabled="editingModeOpen"
+                          required
                         ></v-text-field>
                       </template>
                       <v-date-picker
+                          :disabled="editingModeOpen"
                         v-model="editedItem.dateOfBirth"
                         @input="birthDatePickerVisible = false"
                         :max="today"
@@ -110,14 +114,15 @@
                 <v-row>
                   <v-col cols="12" sm="6" md="6">
                     <v-text-field
-                      v-model="editedItem.salary"
+                      v-model.number="editedItem.salary"
+                      type="number"
                       label="Salary"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="6">
                     <v-select
                       solo
-                      v-model="editedItem.position"
+                      v-model="editedItem.positionName"
                       label="Position"
                       :items="positions"
                       item-text="name"
@@ -180,11 +185,15 @@
 </template>
 
 <script>
+import { Employee } from "../classes/employee";
+var _employees = new Employee();
+
 export default {
   data: () => ({
     search: "",
     today: new Date().toISOString().substr(0, 10),
     dialog: false,
+    editingModeOpen: false,
     dialogDelete: false,
     birthDatePickerVisible: false,
     startDatePickerVisible: false,
@@ -193,33 +202,37 @@ export default {
         text: "Name",
         align: "start",
         sortable: true,
-        value: "fullName",
+        value: "fullname",
       },
-      { text: "Position", sortable: true, value: "position" },
+      { text: "Position", sortable: true, value: "positionName" },
       { text: "", value: "actions", sortable: false },
     ],
     employees: [],
     positions: [],
     editedIndex: -1,
     editedItem: {
-      fullName: "",
+      id: "",
+      fullname: "",
       name: "",
       surname: "",
       address: "",
       dateOfBirth: "",
       salary: 0.0,
       startDate: new Date().toISOString().substr(0, 10),
-      position: "",
+      positionId: 0,
+      positionName: "",
     },
     defaultItem: {
-      fullName: "",
+      id: "",
+      fullname: "",
       name: "",
       surname: "",
       address: "",
       dateOfBirth: "",
       salary: 0.0,
       startDate: new Date().toISOString().substr(0, 10),
-      position: "",
+      positionId: 0,
+      positionName: "",
     },
   }),
 
@@ -245,109 +258,16 @@ export default {
 
   methods: {
     initialize() {
-      this.employees = [
-        {
-          id: "8F7DE5AC-769A-44EF-B9F6-1C3AAA0A219B",
-          fullName: "Sirius Black",
-          name: "Sirius",
-          surname: "Black",
-          address: "",
-          dateOfBirth: "",
-          salary: 0,
-          startDate: "",
-          position: "Support",
-        },
-        {
-          id: "8C2164E5-5670-4733-B888-2D8F44F6F704",
-          fullName: "Lily Potter",
-          name: "Lily",
-          surname: "Potter",
-          address: "",
-          dateOfBirth: "",
-          salary: 0,
-          startDate: "",
-          position: "Programator",
-        },
-        {
-          id: "BBF73A4D-BF6E-4860-BDBE-66ADDD697012",
-          fullName: "Harry Potter",
-          name: "Harry",
-          surname: "Potter",
-          address: "4 Privet Drive, Surrey",
-          dateOfBirth: "1980-07-31",
-          salary: 2500.0,
-          startDate: new Date("2021-11-19 12:29:59.490")
-            .toISOString()
-            .substr(0, 10),
-          position: "Ine",
-        },
-        {
-          id: "B3A11DB7-7E23-4775-9EBA-B5C98DF78401",
-          fullName: "Hermione Granger",
-          name: "Hermione",
-          surname: "Granger",
-          address: "",
-          dateOfBirth: "",
-          salary: 0,
-          startDate: "",
-          position: "Analytik",
-        },
-        {
-          id: "633F0C41-BC3A-4674-A94F-E24531724EDF",
-          fullName: "Ronald Weasley",
-          name: "Ronald",
-          surname: "Weasley",
-          address: "",
-          dateOfBirth: "",
-          salary: 0,
-          startDate: "",
-          position: "Tester",
-        },
-        {
-          id: "F58C8E6D-2AA7-4FEC-A647-EA336C70BC5F",
-          fullName: "James Potter",
-          name: "James",
-          surname: "Potter",
-          address: "",
-          dateOfBirth: "",
-          salary: 0,
-          startDate: "",
-          position: "Programator",
-        },
-      ];
+      this.employees = _employees.loadEmployees();
     },
 
     initPositions() {
-      this.positions = [
-        {
-          id: 1,
-          name: "Ine",
-        },
-        {
-          id: 2,
-          name: "Tester",
-        },
-        {
-          id: 3,
-          name: "Programator",
-        },
-        {
-          id: 4,
-          name: "Support",
-        },
-        {
-          id: 5,
-          name: "Analytik",
-        },
-        {
-          id: 6,
-          name: "Obchodnik",
-        }
-      ];
+      this.positions = _employees.loadPositions();
     },
 
     editItem(empl) {
       this.editedIndex = this.employees.indexOf(empl);
+      this.editingModeOpen = true;
       this.editedItem = Object.assign({}, empl);
       this.dialog = true;
     },
@@ -359,11 +279,13 @@ export default {
     },
 
     deleteItemConfirm() {
+      _employees.deleteEmployee(this.editedItem.id);
       this.employees.splice(this.editedIndex, 1);
       this.closeDelete();
     },
 
     close() {
+      this.editingModeOpen = false;
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
@@ -381,9 +303,19 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.employees[this.editedIndex], this.editedItem);
+        if (
+          _employees.isChanged(
+            this.employees[this.editedIndex],
+            this.editedItem
+          )
+        ) {
+          Object.assign(
+            this.employees[this.editedIndex],
+            _employees.editEmployee(this.editedItem)
+          );
+        }
       } else {
-        this.employees.push(this.editedItem);
+        this.employees.push(_employees.addNewEmployee(this.editedItem));
       }
       this.close();
     },
