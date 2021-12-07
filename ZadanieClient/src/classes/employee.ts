@@ -1,5 +1,6 @@
 import { Position } from "./position";
 import { IPosition } from "./position";
+import { Request } from "./request";
 
 export interface IEmployee {
     id: string,
@@ -15,7 +16,12 @@ export interface IEmployee {
 }
 
 export class Employee {
+    private _url : string = "/WeatherForecast"; // TODO: change to /Employees
     private _positions : IPosition[]; // TODO: keep synchronized with changes on positions... HOW??
+    private _saveOperation = "save";
+    private _removeOperation = "remove";
+    private _getOperation = "get";
+    private _getAllOperation = "get-all";
 
     constructor(){
         const pos = new Position();
@@ -150,11 +156,29 @@ export class Employee {
     private getAllEmployees() { }
 
     // function for sending data to API for save
-    private saveEmployee(empl: IEmployee) { }
+    private saveEmployee(empl: IEmployee) 
+    { 
+        const request = new Request();
+        const response = request.prepareRequest(this._url, 
+            this._saveOperation, this.mapRequestData(empl));
+    }
 
     // function for sending data to API for deleting position
     private removeEmployee(emplId: string, removedOn?: Date) { } 
 
     //function for mapping result from API to interface
     private mapApiResult() { }
+
+    private mapRequestData(empl : IEmployee){
+        return {
+            Id : empl.id,
+            Name : empl.name,
+            Surname : empl.surname,
+            Address : empl.address,
+            DateOfBirth : new Date(empl.dateOfBirth),
+            PositionId : empl.positionId,
+            Salary : empl.salary,
+            StartDate : new Date(empl.startDate),
+        }
+    }
 }

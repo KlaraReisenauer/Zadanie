@@ -13,7 +13,7 @@ namespace ZadanieAPI.Data
         public string Surname { get; set; }
         public string Address { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public PositionDTO Position { get; set; }
+        public int PositionId { get; set; }
         public double Salary { get; set; }
         public DateTime StartDate { get; set; }
     }

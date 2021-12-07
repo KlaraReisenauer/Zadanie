@@ -19,11 +19,7 @@ namespace ZadanieAPI.Data.Repositories
                 DateOfBirth = new DateTime(1980, 7, 31),
                 Salary = 2500.00,
                 StartDate = new DateTime(2021, 11, 19), //TODO: mapping to adding time as well?? mappings using ninject?
-                Position =  new PositionDTO 
-                    { 
-                        Id = 1,
-                        PositionName = "Ine"
-                    },
+                PositionId =  1
             },
             new EmployeeDTO
             {
@@ -34,11 +30,7 @@ namespace ZadanieAPI.Data.Repositories
                 DateOfBirth = new DateTime(1980, 3, 1),
                 Salary = 2200.00,
                 StartDate = new DateTime(2021, 11, 19), //TODO: mapping to adding time as well?? mappings using ninject?
-                Position =  new PositionDTO
-                    {
-                        Id = 2,
-                        PositionName = "Tester"
-                    },
+                PositionId =  2
             },
             new EmployeeDTO
             {
@@ -49,11 +41,7 @@ namespace ZadanieAPI.Data.Repositories
                 DateOfBirth = new DateTime(1979, 9, 19),
                 Salary = 3100.00,
                 StartDate = new DateTime(2021, 11, 19), //TODO: mapping to adding time as well?? mappings using ninject?
-                Position =  new PositionDTO
-                    {
-                        Id = 5,
-                        PositionName = "Analytik"
-                    },
+                PositionId =  5
             }
         };
 
