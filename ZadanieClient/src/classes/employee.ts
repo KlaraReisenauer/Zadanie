@@ -16,7 +16,7 @@ export interface IEmployee {
 }
 
 export class Employee {
-    private _url : string = "/WeatherForecast"; // TODO: change to /Employees
+    private _url : string = "/weatherforecast"; // TODO: change to /Employees
     private _positions : IPosition[]; // TODO: keep synchronized with changes on positions... HOW??
     private _saveOperation = "save";
     private _removeOperation = "remove";

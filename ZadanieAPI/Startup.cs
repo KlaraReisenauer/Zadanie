@@ -7,25 +7,33 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Ninject.Web.AspNetCore;
+using Ninject.Web.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZadanieAPI.Data.Repositories;
+using ZadanieAPI.Data.Repositories.Interfaces;
 
 namespace ZadanieAPI
 {
-    public class Startup
+    public class Startup : AspNetCoreStartupBase
     {
-        public Startup(IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration,
+            IServiceProviderFactory<NinjectServiceProviderBuilder> providerFactory)
+        : base(providerFactory)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public override void ConfigureServices(IServiceCollection services)
         {
+            base.ConfigureServices(services);
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -35,8 +43,10 @@ namespace ZadanieAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public override void Configure(IApplicationBuilder app)
         {
+            var env = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

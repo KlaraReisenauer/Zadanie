@@ -3,22 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZadanieAPI.Data.DTOs;
+using ZadanieAPI.Data.Repositories.Interfaces;
 
 namespace ZadanieAPI.Data.Repositories
 {
     public class PastEmployeeRepository : IPastEmployeeRepository
     {
-        public IList<PastEmployeeDTO> GetAll()
+        public IList<PastEmployee> GetAll()
         {
             throw new NotImplementedException();
         }
 
-        public PastEmployeeDTO GetById(Guid employeeId)
+        public PastEmployee GetById(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public void Remove(Guid employeeId)
+        public bool Remove(Guid id)
         {
             throw new NotImplementedException();
         }

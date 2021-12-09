@@ -7,13 +7,14 @@ using ZadanieAPI.Data.DTOs;
 
 namespace ZadanieAPI.Data.Repositories.Interfaces
 {
-    public interface IPastEmployeeRepository
+    public interface IPositionRepository
     {
-        public IList<PastEmployee> GetAll();
+        public IList<Position> GetAll();
 
-        public PastEmployee GetById(Guid id);
+        public Position GetById(int id);
 
-        public bool Remove(Guid id);
+        public Position Save(Position position);
 
+        public bool Remove(int id);
     }
 }

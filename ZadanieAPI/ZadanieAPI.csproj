@@ -2,14 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>50fc4822-120e-4359-bb10-23fc4b797a5c</UserSecretsId>
+    <UserSecretsId>50665df9-81f2-48f1-8150-649772c2ee4a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
+    <PackageReference Include="Ninject.Web.AspNetCore" Version="5.1.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Queries\" />
   </ItemGroup>
 
 </Project>

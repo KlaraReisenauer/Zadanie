@@ -1,41 +1,53 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using ZadanieAPI.Data;
-using ZadanieAPI.Data.Repositories;
+using ZadanieAPI.Data.DTOs;
+using ZadanieAPI.Data.Repositories.Interfaces;
 
 namespace ZadanieAPI.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")] //PastEmployees
     public class PastEmployeesController : ControllerBase
     {
-        private readonly ILogger<PastEmployeesController> _logger;
-        private readonly IPastEmployeeRepository _pastEmployeeRepository;
+        private readonly IPastEmployeeRepository _pastEmployee;
 
-        public PastEmployeesController(ILogger<PastEmployeesController> logger,
-            IPastEmployeeRepository pastEmployeeRepository)
+        public PastEmployeesController(IPastEmployeeRepository pastEmployee)
         {
-            _logger = logger;
-            _pastEmployeeRepository = pastEmployeeRepository;
+            _pastEmployee = pastEmployee;
         }
 
         [HttpGet]
-        public IEnumerable<PastEmployeeDTO> Get()
+        public IEnumerable<PastEmployee> GetAll()
         {
-            //try
-            //{
-                return _pastEmployeeRepository.GetAll();
-            //}
-            //catch(Exception Ex)
-            //{
-            //    _logger.LogError(Ex.Message);
-            //    return null;
-            //}
+            return _pastEmployee.GetAll();
+        }
+
+        [HttpGet("{id}")] //called as /api/[controller]/id TODO: hide path on client?
+        public PastEmployee GetById(string id)
+        {
+            if (string.IsNullOrEmpty(id) ||
+                   string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("Past employee id is empty");
+            }
+
+            return _pastEmployee.GetById(new Guid(id));
+        }
+
+        [HttpDelete("{id}")]
+        public void Remove(string id)
+        {
+            if (string.IsNullOrEmpty(id) ||
+                string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("Past employee id is empty");
+            }
+
+            _pastEmployee.Remove(new Guid(id));
         }
     }
 }

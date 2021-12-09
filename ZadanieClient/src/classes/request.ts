@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export class Request {
-    private readonly _rootURL = 'https://localhost:49155';
+    private readonly _rootURL = 'https://localhost:49159';
 
     public prepareRequest(path: string, operation: string, data?: any) {   //return parsed response??
         const configuration = this.prepareRequestData(operation, data);

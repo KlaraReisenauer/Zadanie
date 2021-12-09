@@ -3,32 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZadanieAPI.Data.DTOs;
+using ZadanieAPI.Data.Repositories.Interfaces;
 
 namespace ZadanieAPI.Data.Repositories
 {
-    public class PositionsRepository : IPositionsRepository
+    public class PositionRepository : IPositionRepository
     {
-        public IList<PositionDTO> GetAll()
+        public IList<Position> GetAll()
         {
             throw new NotImplementedException();
         }
 
-        public PositionDTO GetById(Guid positionId)
+        public Position GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public void Save(EmployeeDTO position)
+        public bool Remove(int id)
         {
             throw new NotImplementedException();
         }
 
-        public void Remove(Guid positionId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(PositionDTO position)
+        public Position Save(Position position)
         {
             throw new NotImplementedException();
         }
