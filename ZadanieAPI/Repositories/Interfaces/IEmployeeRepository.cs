@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using ZadanieAPI.Models;
+using ZadanieAPI.Database.Models;
 
 namespace ZadanieAPI.Repositories.Interfaces
 {
     public interface IEmployeeRepository
     {
-        IList<EmployeeDTO> GetAll();
+        IList<Employee> GetAll();
 
-        EmployeeDTO GetById(Guid id);
+        Employee GetById(Guid id);
 
-        EmployeeDTO Save(EmployeeDTO employee);
+        Employee Save(Employee employee);
 
         bool Remove(Guid id, bool removePermanently);
-
-        bool CheckEmployeeEmpty(EmployeeDTO employee);
     }
 }

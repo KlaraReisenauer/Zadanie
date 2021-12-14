@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using ZadanieAPI.Database.Models;
 using ZadanieAPI.Models;
 
 namespace ZadanieAPI.Repositories.Interfaces
 {
     public interface IPastEmployeeRepository
     {
-        IList<PastEmployeeDTO> GetAll();
+        IList<Employee> GetAll();
 
-        PastEmployeeDTO GetById(Guid id);
+        Employee GetById(Guid id);
 
         bool Remove(Guid id);
 
-        void ArchivateEmployee(PastEmployeeDTO pastEmployee);
+        void ArchivateEmployee(Employee pastEmployee);
 
     }
 }

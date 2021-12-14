@@ -13,7 +13,7 @@ namespace ZadanieAPI
         public static void Main(string[] args)
         {
             var hostConfiguration = new AspNetCoreHostConfiguration(args)
-                .UseStartup<Startup>() // TODO: .UseWebHostBuilder(CreateWebHostBuilder) ??
+                .UseStartup<Startup>()
                 .UseKestrel()
                 .BlockOnStart();
 

@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using ZadanieAPI.Database.Models;
 using ZadanieAPI.Models;
 
 namespace ZadanieAPI.Repositories.Interfaces
 {
     public interface IPositionRepository
     {
-        IList<PositionDTO> GetAll();
+        IList<Position> GetAll();
 
-        PositionDTO GetById(int id);
+        Position GetById(int id);
 
-        PositionDTO Save(PositionDTO position);
+        Position Save(Position position);
 
         bool Remove(int id);
     }

@@ -29,6 +29,7 @@ namespace ZadanieAPI
             base.ConfigureServices(services);
 
             services.AddDbContext<CoreDbContext>(op => op.UseSqlServer(Configuration.GetConnectionString("LocalDockerConnection")));
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

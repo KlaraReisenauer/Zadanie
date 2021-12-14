@@ -9,11 +9,11 @@ namespace ZadanieAPI.Repositories
 {
     public class EmployeeRepository : IEmployeeRepository
     {
-        private IList<EmployeeDTO> _employees = new List<EmployeeDTO>()
+        private IList<Employee> _employees = new List<Employee>()
         {
-            new EmployeeDTO
+            new Employee
             {
-                Id = new Guid("633F0C41-BC3A-4674-A94F-E24531724EDF"),
+                EmployeeId = new Guid("633F0C41-BC3A-4674-A94F-E24531724EDF"),
                 Name = "Ronald",
                 Surname = "Weasley",
                 DateOfBirth = new DateTime(1980, 7, 31),
@@ -21,10 +21,10 @@ namespace ZadanieAPI.Repositories
                 StartDate = new DateTime(1980, 7, 31),
                 PositionId = 2,
             },
-            new EmployeeDTO
+            new Employee
             {
 
-                Id = new Guid("B3A11DB7-7E23-4775-9EBA-B5C98DF78401"),
+                EmployeeId = new Guid("B3A11DB7-7E23-4775-9EBA-B5C98DF78401"),
                 Name = "Hermione",
                 Surname = "Granger",
                 DateOfBirth = new DateTime(1980, 7, 31),
@@ -32,14 +32,14 @@ namespace ZadanieAPI.Repositories
                 StartDate = new DateTime(1980, 7, 31),
                 PositionId = 5,
             },
-            new EmployeeDTO
+            new Employee
             {
-                Id = new Guid("BBF73A4D-BF6E-4860-BDBE-66ADDD697012"),
+                EmployeeId = new Guid("BBF73A4D-BF6E-4860-BDBE-66ADDD697012"),
                 Name = "Harry",
                 Surname = "Potter",
                 Address = "4 Privet Drive, Surrey",
                 DateOfBirth = new DateTime(1980, 7, 31),
-                Salary = 2500.55,
+                Salary = 2500.55M,
                 StartDate = new DateTime(1980, 7, 31),
                 PositionId = 1,
             }
@@ -55,7 +55,9 @@ namespace ZadanieAPI.Repositories
             _dbContext = dbContext;
         }
 
-        public IList<EmployeeDTO> GetAll()
+        #region Public Methods
+
+        public IList<Employee> GetAll()
         {
             var employees = _dbContext.Employees.Where(e => e.EndDate == null).ToList();
 
@@ -63,13 +65,14 @@ namespace ZadanieAPI.Repositories
             return _employees;
         }
 
-        public EmployeeDTO GetById(Guid id)
+        public Employee GetById(Guid id)
         {
             var employee = _dbContext.Employees.FirstOrDefault(e => e.EmployeeId == id);
 
             //TODO: remove when above working
-            EmployeeDTO empl = _employees.FirstOrDefault(e => e.Id == id);
-            return empl == default(EmployeeDTO)
+            Employee empl = _employees.FirstOrDefault(e => e.EmployeeId == id);
+
+            return empl == default(Employee)
                 ? throw new Exception($"Employee with id {id} does not exist in current scope")
                 : empl;
         }
@@ -77,51 +80,21 @@ namespace ZadanieAPI.Repositories
         public bool Remove(Guid id, bool removePermanently)
         {
             //TODO: remove when above working
-            EmployeeDTO emplToRemove = _employees.FirstOrDefault(e => e.Id == id);
-
-            if (emplToRemove == default(EmployeeDTO))
+            Employee emplToRemove = GetById(id) ?? new Employee();
+            if (removePermanently)
             {
-                if (!removePermanently)
-                { //check if wasnt already moved into past employees
-                    PastEmployeeDTO pastEmpl = new PastEmployeeDTO();
-
-                    try
-                    {
-                        pastEmpl = _pastEmployeeRepository.GetById(id);
-
-                    }
-                    catch (Exception) { }
-
-                    if (CheckEmployeeEmpty(pastEmpl))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                return RemoveEmployeePermenently(emplToRemove);
+            }
+            else
+            {
+                return ArchivateEmployee(emplToRemove);
             }
 
-            if (!removePermanently)
-            {
-                _pastEmployeeRepository.ArchivateEmployee(
-                    new PastEmployeeDTO
-                    {
-                        Name = emplToRemove.Name,
-                        Surname = emplToRemove.Surname,
-                        Address = emplToRemove.Address,
-                        DateOfBirth = emplToRemove.DateOfBirth,
-                        PositionId = emplToRemove.PositionId,
-                        Salary = emplToRemove.Salary,
-                        StartDate = emplToRemove.StartDate // TODO: alebo nahradim bez kontroly??
-                    });
-            }
-
-            return _employees.Remove(emplToRemove);
         }
 
-        public EmployeeDTO Save(EmployeeDTO employee)
+        public Employee Save(Employee employee)
         {
-            if (employee.Id == null || employee.Id == Guid.Empty)
+            if (employee.EmployeeId == Guid.Empty)
             {
                 return AddNewEmployee(employee);
             }
@@ -129,37 +102,60 @@ namespace ZadanieAPI.Repositories
             return EditEmployee(employee);
         }
 
-        public bool CheckEmployeeEmpty(EmployeeDTO employee)
-        {
-            //TODO: remove when above working
-            return string.IsNullOrEmpty(employee.Name) &&
-                string.IsNullOrEmpty(employee.Surname) &&
-                employee.PositionId <= 0 &&
-                employee.Salary == 0 &&
-                employee.DateOfBirth == default(DateTime);
-        }
+        #endregion Public Methods
 
-        private EmployeeDTO AddNewEmployee(EmployeeDTO employee)
+        #region Private Methods
+
+        private Employee AddNewEmployee(Employee employee)
         {
+            var newEmployee = _dbContext.Add(employee);
+            _dbContext.SaveChanges();// TODO: get new id from db after saving "newId = ..."
+
             //TODO: remove when above working
-            _employees.Add(employee); // TODO: get new id from db after saving "newId = ..."
+            _employees.Add(employee); 
             return employee;
         }
 
-        private EmployeeDTO EditEmployee(EmployeeDTO employee)
+        private Employee EditEmployee(Employee employee)
         {
-            //TODO: remove when above working
-            EmployeeDTO emplToEdit = GetById(employee.Id.Value);
+            var employeeToEdit = _dbContext.Employees
+                .FirstOrDefault(e => e.EmployeeId == employee.EmployeeId);
+            var result = _dbContext.Employees.Update(employeeToEdit);
+            _dbContext.SaveChanges();
 
-            emplToEdit.Name = employee.Name;
-            emplToEdit.Surname = employee.Surname;
-            emplToEdit.Address = employee.Address;
-            emplToEdit.DateOfBirth = employee.DateOfBirth;
-            emplToEdit.PositionId = employee.PositionId;
-            emplToEdit.Salary = employee.Salary;
-            emplToEdit.StartDate = employee.StartDate;
-
-            return emplToEdit;
+            return employeeToEdit;
         }
+
+        private bool ArchivateEmployee(Employee employee)
+        {
+            if (employee == default(Employee))
+            {// TODO: UPRAVIT!!!
+                Employee pastEmpl = _pastEmployeeRepository.GetById(employee.EmployeeId)
+                    ?? new Employee();
+
+                if(pastEmpl == default(Employee))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                _pastEmployeeRepository.ArchivateEmployee(employee);
+            }
+
+            return true;
+        }
+
+        private bool RemoveEmployeePermenently(Employee employee)
+        {
+            if (employee != default(Employee))
+            {
+                var result = _dbContext.Employees.Remove(employee); //TODO: check result?
+            }
+
+            return true;
+        }
+
+        #endregion Private Methods
     }
 }

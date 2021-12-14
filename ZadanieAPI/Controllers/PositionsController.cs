@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using ZadanieAPI.Database.Models;
 using ZadanieAPI.Models;
 using ZadanieAPI.Repositories.Interfaces;
 
@@ -11,16 +14,20 @@ namespace ZadanieAPI.Controllers
     public class PositionsController : ControllerBase
     {
         private readonly IPositionRepository _positionRepository;
+        private readonly IMapper _mapper;
 
-        public PositionsController(IPositionRepository positionRepository)
+        public PositionsController(IPositionRepository positionRepository,
+            IMapper mapper)
         {
             _positionRepository = positionRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IEnumerable<PositionDTO> GetAll()
         {
-            return _positionRepository.GetAll();
+            var positions = _positionRepository.GetAll();
+            return positions.Select(p => _mapper.Map<PositionDTO>(p));
         }
 
         [HttpGet("{id}")] //called as /api/[controller]/id
@@ -31,11 +38,12 @@ namespace ZadanieAPI.Controllers
                 throw new ArgumentException("Position id format is not valid");
             }
 
-            return _positionRepository.GetById(id);
+            var position = _positionRepository.GetById(id);
+            return _mapper.Map<PositionDTO>(position);
         }
 
         [HttpPost]
-        public PositionDTO Save(PositionDTO position)
+        public int Save(PositionDTO position)
         {
             if(string.IsNullOrEmpty(position.Name) ||
                 string.IsNullOrWhiteSpace(position.Name))
@@ -43,7 +51,9 @@ namespace ZadanieAPI.Controllers
                 throw new ArgumentException("Position is not in valid format. Position name cannot be empty.");
             }
 
-            return _positionRepository.Save(position);
+            var savedPosition = _positionRepository.Save(
+                _mapper.Map<Position>(position));
+            return savedPosition.PositionId;
         }
 
         [HttpDelete("{id}")]

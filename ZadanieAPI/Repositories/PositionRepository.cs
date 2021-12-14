@@ -3,66 +3,85 @@ using System.Collections.Generic;
 using System.Linq;
 using ZadanieAPI.Repositories.Interfaces;
 using ZadanieAPI.Models;
+using ZadanieAPI.Database.Models;
 
 namespace ZadanieAPI.Repositories
 {
     public class PositionRepository : IPositionRepository
     {
         // TODO: Remove after db is properly connected
-        private IList<PositionDTO> _positions = new List<PositionDTO>(){
-                new PositionDTO
+        private IList<Position> _positions = new List<Position>(){
+                new Position
                 {
-                    Id = 1,
+                    PositionId = 1,
                     Name = "Other"
                 },
-                new PositionDTO
+                new Position
                 {
-                    Id = 2,
+                    PositionId = 2,
                     Name = "Tester"
                 },
-                new PositionDTO
+                new Position
                 {
-                    Id = 3,
+                    PositionId = 3,
                     Name = "Programmer"
                 },
-                new PositionDTO
+                new Position
                 {
-                    Id = 4,
+                    PositionId = 4,
                     Name = "Support"
                 },
-                new PositionDTO
+                new Position
                 {
-                    Id = 5,
+                    PositionId = 5,
                     Name = "Analyst"
                 },
-                new PositionDTO
+                new Position
                 {
-                    Id = 6,
+                    PositionId = 6,
                     Name = "Tradesman"
                 }
             };
+        private readonly CoreDbContext _dbContext;
 
-        public IList<PositionDTO> GetAll()
+        public PositionRepository(CoreDbContext dbContext)
         {
+            _dbContext = dbContext;
+        }
+
+        #region Public Methods
+
+        public IList<Position> GetAll()
+        {
+            var positions = _dbContext.Positions.ToList();
+            //TODO: remove when above working
             return _positions;
         }
 
-        public PositionDTO GetById(int id)
+        public Position GetById(int id)
         {
-            PositionDTO position = _positions.FirstOrDefault(p => p.Id == id);
-
-            if (position == default(PositionDTO))
-            { // should I throw exception or automatically add new?? I think throw exception and user can possibly add position again..
-                throw new Exception("Position does not exist in current scope.");
-            }
-
-            return position;
+            var position = _dbContext.Positions
+                .FirstOrDefault(p => p.PositionId == id);
+            return position == default(Position) ?
+                throw new Exception("Position does not exist in current scope.")
+                : position;
         }
 
         public bool Remove(int id)
         {
-            PositionDTO posToRemove = _positions.FirstOrDefault(p => p.Id == id);
-            if (posToRemove != default(PositionDTO))
+            try
+            {
+                var positionToRemove = GetById(id);
+                _dbContext.Positions.Remove(positionToRemove);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception) { } //if already removed - no problem
+
+            return true;
+
+            //TODO: remove when above working
+            Position posToRemove = _positions.FirstOrDefault(p => p.PositionId == id);
+            if (posToRemove != default(Position))
             {
                 return _positions.Remove(posToRemove);
             }
@@ -70,9 +89,9 @@ namespace ZadanieAPI.Repositories
             return true;
         }
 
-        public PositionDTO Save(PositionDTO position)
+        public Position Save(Position position)
         {
-            if (position.Id <= 0)
+            if (position.PositionId <= 0)
             {
                 return AddNewPosition(position);
             }
@@ -80,18 +99,35 @@ namespace ZadanieAPI.Repositories
             return EditPosition(position);
         }
 
-        private PositionDTO AddNewPosition(PositionDTO position)
+        #endregion Public Methods
+
+        #region Private Methods
+        private Position AddNewPosition(Position position)
         {
-            position.Id = _positions.Max(p => p.Id) + 1;
+            var newPosition = _dbContext.Positions.Add(
+                new Position {
+                    Name = position.Name
+                });
+            _dbContext.SaveChanges();
+
+            //TODO: remove when above working
+            position.PositionId = _positions.Max(p => p.PositionId) + 1;
             _positions.Add(position);
             return position;
         }
 
-        private PositionDTO EditPosition(PositionDTO position)
+        private Position EditPosition(Position position)
         {
-            PositionDTO posToUpdate = GetById(position.Id);
-            posToUpdate.Name = position.Name; // this wont update list value..
+            var positionToUpdate = GetById(position.PositionId);
+            var result = _dbContext.Positions.Update(positionToUpdate);
+            _dbContext.SaveChanges();
+
+            //TODO: remove when above working
+            Position posToUpdate = _positions.First(p => p.PositionId == position.PositionId);
+            posToUpdate.Name = position.Name; 
             return position;
         }
+
+        #endregion Private Methods
     }
 }
