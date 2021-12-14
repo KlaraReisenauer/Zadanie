@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ZadanieAPI.Data.DTOs
+namespace ZadanieAPI.Models
 {
-    public class PastEmployee : Employee
+    public class PastEmployeeDTO : EmployeeDTO
     {
         public DateTime EndDate { get; set; }
     }

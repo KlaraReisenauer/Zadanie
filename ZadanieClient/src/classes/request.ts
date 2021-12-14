@@ -1,10 +1,10 @@
 import axios from "axios";
 
 export class Request {
-    private readonly _rootURL = 'https://localhost:49159';
+    private readonly _rootURL = 'https://localhost:49153/api';
 
-    public prepareRequest(path: string, operation: string, data?: any) {   //return parsed response??
-        const configuration = this.prepareRequestData(operation, data);
+    public prepareRequest(path: string, data?: any) {   //return parsed response??
+        const configuration = this.prepareRequestData(data);
         return this.sendGetRequest(path, configuration); //(data) ? this.sendPostRequest(path, configuration) :
     }
 
@@ -30,13 +30,10 @@ export class Request {
             });
     }
 
-    private prepareRequestData(op: string, rdata?: any) {
+    private prepareRequestData(rdata?: any) {
         return {
             baseURL: this._rootURL,
-            data: {
-                operation: op,
-                data: rdata
-            },
+            data: rdata,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             headers: { 'Content-Type': 'application/json' }

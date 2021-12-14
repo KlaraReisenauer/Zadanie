@@ -1,18 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Ninject;
 using Ninject.Web.AspNetCore;
 using Ninject.Web.AspNetCore.Hosting;
 using Ninject.Web.Common.SelfHost;
-using ZadanieAPI.Data.Repositories.Interfaces;
-using ZadanieAPI.Data.Repositories;
+using ZadanieAPI.Repositories;
+using ZadanieAPI.Repositories.Interfaces;
 
 namespace ZadanieAPI
 {
@@ -47,12 +39,9 @@ namespace ZadanieAPI
             kernel.Bind<IEmployeeRepository>().To<EmployeeRepository>();
             kernel.Bind<IPastEmployeeRepository>().To<PastEmployeeRepository>();
             kernel.Bind<IPositionRepository>().To<PositionRepository>();
+            //kernel.Bind<IDBConnectionFactory>().To<SqlConnectionFactory>()
+            //    .WithConstructorArgument("connectionString",
+            //    "Server=localhost,11433;Database=Employee_DB;Trusted_Connection=True;User ID = sa; Password = SQLDB.CONTAINER");
         }
-        //public static IWebHostBuilder CreateWebHostBuilder()
-        //{
-        //    return new DefaultWebHostConfiguration(null)
-        //        .ConfigureAll()
-        //        .GetBuilder();
-        //}
     }
 }

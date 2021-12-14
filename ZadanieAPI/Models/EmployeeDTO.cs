@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ZadanieAPI.Data.DTOs
+namespace ZadanieAPI.Models
 {
-    public class Employee
+    public class EmployeeDTO
     {
         public Guid? Id { get; set; }
         public string Name { get; set; }

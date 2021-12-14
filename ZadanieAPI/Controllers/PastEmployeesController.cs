@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ZadanieAPI.Data.DTOs;
-using ZadanieAPI.Data.Repositories.Interfaces;
+using ZadanieAPI.Models;
+using ZadanieAPI.Repositories.Interfaces;
 
 namespace ZadanieAPI.Controllers
 {
@@ -21,33 +18,31 @@ namespace ZadanieAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<PastEmployee> GetAll()
+        public IEnumerable<PastEmployeeDTO> GetAll()
         {
             return _pastEmployee.GetAll();
         }
 
         [HttpGet("{id}")] //called as /api/[controller]/id TODO: hide path on client?
-        public PastEmployee GetById(string id)
+        public PastEmployeeDTO GetById(Guid id)
         {
-            if (string.IsNullOrEmpty(id) ||
-                   string.IsNullOrWhiteSpace(id))
+            if (id == Guid.Empty)
             {
                 throw new ArgumentException("Past employee id is empty");
             }
 
-            return _pastEmployee.GetById(new Guid(id));
+            return _pastEmployee.GetById(id);
         }
 
         [HttpDelete("{id}")]
-        public void Remove(string id)
+        public void Remove(Guid id)
         {
-            if (string.IsNullOrEmpty(id) ||
-                string.IsNullOrWhiteSpace(id))
+            if (id == Guid.Empty)
             {
                 throw new ArgumentException("Past employee id is empty");
             }
 
-            _pastEmployee.Remove(new Guid(id));
+            _pastEmployee.Remove(id);
         }
     }
 }

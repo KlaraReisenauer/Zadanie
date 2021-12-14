@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ZadanieAPI.Data.DTOs;
-using ZadanieAPI.Data.Repositories.Interfaces;
+using ZadanieAPI.Models;
+using ZadanieAPI.Repositories.Interfaces;
 
 namespace ZadanieAPI.Controllers
 {
@@ -21,13 +18,13 @@ namespace ZadanieAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Position> GetAll()
+        public IEnumerable<PositionDTO> GetAll()
         {
             return _positionRepository.GetAll();
         }
 
         [HttpGet("{id}")] //called as /api/[controller]/id
-        public Position GetById(int id)
+        public PositionDTO GetById(int id)
         {
             if(id <= 0)
             {
@@ -38,7 +35,7 @@ namespace ZadanieAPI.Controllers
         }
 
         [HttpPost]
-        public Position Save(Position position)
+        public PositionDTO Save(PositionDTO position)
         {
             if(string.IsNullOrEmpty(position.Name) ||
                 string.IsNullOrWhiteSpace(position.Name))
@@ -49,7 +46,7 @@ namespace ZadanieAPI.Controllers
             return _positionRepository.Save(position);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public void Remove(int id)
         {
             if (id <= 0)

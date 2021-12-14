@@ -1,6 +1,6 @@
-﻿namespace ZadanieAPI.Data.DTOs
+﻿namespace ZadanieAPI.Models
 {
-    public class Position
+    public class PositionDTO
     {
         public int Id { get; set; }
 

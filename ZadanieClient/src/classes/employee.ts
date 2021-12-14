@@ -16,12 +16,8 @@ export interface IEmployee {
 }
 
 export class Employee {
-    private _url : string = "/weatherforecast"; // TODO: change to /Employees
-    private _positions : IPosition[]; // TODO: keep synchronized with changes on positions... HOW??
-    private _saveOperation = "save";
-    private _removeOperation = "remove";
-    private _getOperation = "get";
-    private _getAllOperation = "get-all";
+    private readonly _path = "Employees";
+    private readonly _positions : IPosition[]; // TODO: keep synchronized with changes on positions... HOW??
 
     constructor(){
         const pos = new Position();
@@ -86,6 +82,8 @@ export class Employee {
                 positionId: 3,
             },
         ];
+
+        const emplTest = this.getAllEmployees();
 
         employees.forEach(el => {
             el.fullname = this.createFullName(el.name, el.surname);
@@ -153,14 +151,17 @@ export class Employee {
     }
 
     // function for getting tmpPosition from api
-    private getAllEmployees() { }
+    private getAllEmployees() 
+    { 
+        const request = new Request();
+        const response = request.prepareRequest(this._path);
+    }
 
     // function for sending data to API for save
     private saveEmployee(empl: IEmployee) 
     { 
         const request = new Request();
-        const response = request.prepareRequest(this._url, 
-            this._saveOperation, this.mapRequestData(empl));
+        const response = request.prepareRequest(this._path, empl);
     }
 
     // function for sending data to API for deleting position
@@ -169,7 +170,7 @@ export class Employee {
     //function for mapping result from API to interface
     private mapApiResult() { }
 
-    private mapRequestData(empl : IEmployee){
+    private mapRequestData(empl : IEmployee){ // TODO: check if it is needed
         return {
             Id : empl.id,
             Name : empl.name,
