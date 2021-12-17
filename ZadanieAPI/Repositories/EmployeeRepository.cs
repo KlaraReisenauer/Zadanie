@@ -65,18 +65,6 @@ namespace ZadanieAPI.Repositories
             return _employees;
         }
 
-        public Employee GetById(Guid id)
-        {
-            var employee = _dbContext.Employees.FirstOrDefault(e => e.EmployeeId == id);
-
-            //TODO: remove when above working
-            Employee empl = _employees.FirstOrDefault(e => e.EmployeeId == id);
-
-            return empl == default(Employee)
-                ? throw new Exception($"Employee with id {id} does not exist in current scope")
-                : empl;
-        }
-
         public bool Remove(Guid id, bool removePermanently)
         {
             //TODO: remove when above working
@@ -87,7 +75,7 @@ namespace ZadanieAPI.Repositories
             }
             else
             {
-                return ArchivateEmployee(emplToRemove);
+                return ArchivateEmployee(emplToRemove, id);
             }
 
         }
@@ -105,6 +93,18 @@ namespace ZadanieAPI.Repositories
         #endregion Public Methods
 
         #region Private Methods
+
+        private Employee GetById(Guid id)
+        {
+            var employee = _dbContext.Employees.FirstOrDefault(e => e.EmployeeId == id);
+
+            //TODO: remove when above working
+            Employee empl = _employees.FirstOrDefault(e => e.EmployeeId == id);
+
+            return empl == default(Employee)
+                ? throw new Exception($"Employee with id {id} does not exist in current scope")
+                : empl;
+        }
 
         private Employee AddNewEmployee(Employee employee)
         {
@@ -126,11 +126,11 @@ namespace ZadanieAPI.Repositories
             return employeeToEdit;
         }
 
-        private bool ArchivateEmployee(Employee employee)
+        private bool ArchivateEmployee(Employee employee, Guid id)
         {
             if (employee == default(Employee))
-            {// TODO: UPRAVIT!!!
-                Employee pastEmpl = _pastEmployeeRepository.GetById(employee.EmployeeId)
+            {
+                Employee pastEmpl = _pastEmployeeRepository.GetById(id)
                     ?? new Employee();
 
                 if(pastEmpl == default(Employee))

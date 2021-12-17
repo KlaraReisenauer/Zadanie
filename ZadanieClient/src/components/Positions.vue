@@ -99,7 +99,7 @@
 <script>
 import { Position } from "../classes/position";
 
-let position = new Position();
+let _position = new Position();
 
 export default {
   data: () => ({
@@ -118,11 +118,11 @@ export default {
     positions: [],
     editedIndex: -1,
     editedItem: {
-      id: 0,
+      PositionId: 0,
       name: "",
     },
     defaultItem: {
-      id: 0,
+      PositionId: 0,
       name: "",
     },
   }),
@@ -148,7 +148,7 @@ export default {
 
   methods: {
     initialize() {
-      this.positions = position.loadPositions();
+      this.positions = _position.loadPositions();
     },
 
     editItem(item) {
@@ -164,6 +164,7 @@ export default {
     },
 
     deleteItemConfirm() {
+      _position.deletePosition(this.editedItem.PositionId);
       this.positions.splice(this.editedIndex, 1);
       this.closeDelete();
     },
@@ -179,7 +180,6 @@ export default {
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
-        position.deletePosition(this.editedItem);
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
@@ -188,11 +188,11 @@ export default {
     save() {
       if (this.editedIndex > -1) {
         if (this.editedItem.name !== this.positions[this.editedIndex].name) {
-          position.editPosition(this.editedItem);
+          _position.editPosition(this.editedItem);
           Object.assign(this.positions[this.editedIndex], this.editedItem);
         }
       } else {
-        let positionWithId = position.addNewPosition(this.editedItem.name);
+        let positionWithId = _position.addNewPosition(this.editedItem.name);
         this.positions.push(positionWithId);
       }
       this.close();

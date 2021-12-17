@@ -166,7 +166,7 @@ export default {
     employees: [],
     editedIndex: -1,
     editedItem: {
-      id: "",
+      employeeId: "",
       fullname: "",
       name: "",
       surname: "",
@@ -179,7 +179,7 @@ export default {
       endDate: new Date().toISOString().substr(0, 10)
     },
     defaultItem: {
-      id: "",
+      employeeId: "",
       fullname: "",
       name: "",
       surname: "",
@@ -224,7 +224,7 @@ export default {
     },
 
     deleteItemConfirm() {
-      _employee.deletePastEmployee(this.editedItem.id);
+      _employee.deletePastEmployee(this.editedItem.employeeId);
       this.employees.splice(this.editedIndex, 1);
       this.closeDelete();
     },

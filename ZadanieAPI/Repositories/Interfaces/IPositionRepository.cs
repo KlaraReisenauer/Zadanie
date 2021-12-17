@@ -8,8 +8,6 @@ namespace ZadanieAPI.Repositories.Interfaces
     {
         IList<Position> GetAll();
 
-        Position GetById(int id);
-
         Position Save(Position position);
 
         bool Remove(int id);

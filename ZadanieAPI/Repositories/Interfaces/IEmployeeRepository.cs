@@ -8,7 +8,7 @@ namespace ZadanieAPI.Repositories.Interfaces
     {
         IList<Employee> GetAll();
 
-        Employee GetById(Guid id);
+        //Employee GetById(Guid id);
 
         Employee Save(Employee employee);
 

@@ -30,17 +30,17 @@ namespace ZadanieAPI.Controllers
             return positions.Select(p => _mapper.Map<PositionDTO>(p));
         }
 
-        [HttpGet("{id}")] //called as /api/[controller]/id
-        public PositionDTO GetById(int id)
-        {
-            if(id <= 0)
-            {
-                throw new ArgumentException("Position id format is not valid");
-            }
+        //[HttpGet("{id}")] //called as /api/[controller]/id
+        //public PositionDTO GetById(int id)
+        //{
+        //    if(id <= 0)
+        //    {
+        //        throw new ArgumentException("Position id format is not valid");
+        //    }
 
-            var position = _positionRepository.GetById(id);
-            return _mapper.Map<PositionDTO>(position);
-        }
+        //    var position = _positionRepository.GetById(id);
+        //    return _mapper.Map<PositionDTO>(position);
+        //}
 
         [HttpPost]
         public int Save(PositionDTO position)
@@ -56,15 +56,15 @@ namespace ZadanieAPI.Controllers
             return savedPosition.PositionId;
         }
 
-        [HttpDelete("{id}")]
-        public void Remove(int id)
+        [HttpDelete("{positionId}")]
+        public void Remove(int positionId)
         {
-            if (id <= 0)
+            if (positionId <= 0)
             {
                 throw new ArgumentException("Position id format is not valid");
             }
 
-            _positionRepository.Remove(id);
+            _positionRepository.Remove(positionId);
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class PositionDTO
     {
-        public int Id { get; set; }
+        public int PositionId { get; set; }
 
         public string Name { get; set; }
     }

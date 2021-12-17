@@ -1,59 +1,60 @@
+import { Request } from "./request";
+import { RequestType } from "./request";
+
 export interface IPosition {
-    id: number;
+    PositionId: number;
     name: string;
-    removedOn?: Date;
 }
 
 export class Position {
+    private readonly _path = "Positions";
+
     public loadPositions(): IPosition[] {
         const tmpPositions = [ //TODO: replace with api call
             {
-                id: 1,
+                PositionId: 1,
                 name: "Ine"
             },
             {
-                id: 2,
+                PositionId: 2,
                 name: "Tester",
             },
             {
-                id: 3,
+                PositionId: 3,
                 name: "Programator",
             },
             {
-                id: 4,
+                PositionId: 4,
                 name: "Support",
             },
             {
-                id: 5,
+                PositionId: 5,
                 name: "Analytik",
             },
             {
-                id: 6,
+                PositionId: 6,
                 name: "Obchodnik",
             }];
-        //let positions = this.getAllPositions();        
+        let positions = this.getAllPositions();        
 
         return tmpPositions;
     }
 
     public addNewPosition(positionName: string): IPosition {
-        //todo call API to assign ID
+        //todo call API to assign PositionId
         const newPosition: IPosition = {
             name: positionName,
-            id: 0
+            PositionId: 0
         };
+        
         this.savePosition(newPosition); //TODO: return updated position
 
         return newPosition;
     }
 
-    public deletePosition(position: IPosition) {
-        if (position.id === 0 && position.name === ''){
-            return;
-        }
+    public deletePosition(positionId: number) {
 
-        position.removedOn = new Date();
-        this.removePosition(position);
+        this.removePosition(positionId);
     }
 
     public editPosition(position: IPosition) {
@@ -61,13 +62,26 @@ export class Position {
     }
 
     // function for getting tmpPosition from api
-    private getAllPositions() { }
+    private getAllPositions() {
+        const request = new Request();
+        const result = request.prepareRequest(this._path, RequestType.Get);
+     }
 
     // function for sending data to API for save
-    private savePosition(position: IPosition) { }
+    private savePosition(position: IPosition) {
+        const request = new Request();
+        const result = request.prepareRequest(this._path, RequestType.Post,
+            JSON.stringify(position));
+     }
 
     // function for sending data to API for deleting position
-    private removePosition(position: IPosition) { }
+    private removePosition(positionId: number) {
+        const request = new Request();
+        const result = request.prepareRequest(this._path, RequestType.Delete,
+            JSON.stringify({
+                positionId: positionId
+            }));
+     }
     
     //function for mapping result from API to interface
     private mapApiResult() { }

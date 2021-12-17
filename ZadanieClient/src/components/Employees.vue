@@ -20,7 +20,7 @@
         ></v-text-field>
         <v-dialog v-model="dialog" max-width="800px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+            <v-btn color="primary" dark class="mb-2" @click="newEmployee" v-bind="attrs" v-on="on">
               New Employee
             </v-btn>
           </template>
@@ -62,8 +62,7 @@
                       transition="scale-transition"
                       offset-y
                       min-width="auto"
-                      
-                    ><!-- :disabled="editingModeOpen" -->
+                      ><!-- :disabled="editingModeOpen" -->
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="editedItem.dateOfBirth"
@@ -77,7 +76,7 @@
                         ></v-text-field>
                       </template>
                       <v-date-picker
-                          :disabled="editingModeOpen"
+                        :disabled="editingModeOpen"
                         v-model="editedItem.dateOfBirth"
                         @input="birthDatePickerVisible = false"
                         :max="today"
@@ -149,7 +148,22 @@
               <v-btn color="blue darken-1" text @click="closeDelete"
                 >Cancel</v-btn
               >
-              <v-btn color="primary" @click="deleteItemConfirm">OK</v-btn>
+              <v-btn color="primary" @click="archivateItem">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogArchivate" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h7"
+              >Would you like to archivate the employee?</v-card-title
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="removeItemPermanently"
+                >No</v-btn
+              >
+              <v-btn color="primary" @click="archivateItemConfirm">Yes</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -195,6 +209,7 @@ export default {
     dialog: false,
     editingModeOpen: false,
     dialogDelete: false,
+    dialogArchivate: false,
     birthDatePickerVisible: false,
     startDatePickerVisible: false,
     headers: [
@@ -211,7 +226,7 @@ export default {
     positions: [],
     editedIndex: -1,
     editedItem: {
-      id: "",
+      employeeId: "",
       fullname: "",
       name: "",
       surname: "",
@@ -223,7 +238,7 @@ export default {
       positionName: "",
     },
     defaultItem: {
-      id: "",
+      employeeId: "",
       fullname: "",
       name: "",
       surname: "",
@@ -246,9 +261,9 @@ export default {
     dialog(val) {
       val || this.close();
     },
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
+    // dialogDelete(val) {
+    //   val || this.dialogDelete = false; //TODO: test only popup closing(not by cancel)
+    // },
   },
 
   created() {
@@ -265,6 +280,11 @@ export default {
       this.positions = _employees.loadPositions();
     },
 
+    newEmployee(){
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+    },
+
     editItem(empl) {
       this.editedIndex = this.employees.indexOf(empl);
       this.editingModeOpen = true;
@@ -278,10 +298,21 @@ export default {
       this.dialogDelete = true;
     },
 
-    deleteItemConfirm() {
-      _employees.deleteEmployee(this.editedItem.id);
+    archivateItem() {
+      this.dialogDelete = false;
+      this.dialogArchivate = true;
+    },
+
+    removeItemPermanently() {
+      _employees.deleteEmployee(this.editedItem.employeeId);
       this.employees.splice(this.editedIndex, 1);
-      this.closeDelete();
+      this.closeArchivateDialog();
+    },
+
+    archivateItemConfirm() {
+      _employees.deleteAndArchiveEmployee(this.editItem.employeeId);
+      this.employees.splice(this.editedIndex, 1);
+      this.closeArchivateDialog();
     },
 
     close() {
@@ -295,6 +326,14 @@ export default {
 
     closeDelete() {
       this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeArchivateDialog() {
+      this.dialogArchivate = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;

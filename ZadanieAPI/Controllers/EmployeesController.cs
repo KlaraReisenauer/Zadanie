@@ -30,19 +30,19 @@ namespace ZadanieAPI.Controllers
             return employees.Select(e => _mapper.Map<EmployeeDTO>(e)).ToList();
         }
 
-        [HttpGet("{id}")] //called as /api/[controller]/id
-        public EmployeeDTO GetById(Guid id)
-        {
-            if(id == Guid.Empty)
-            {
-                throw new ArgumentException("Employee id is empty");
-            }
-            Employee employee = _employeeRepository.GetById(id);
-            return _mapper.Map<EmployeeDTO>(employee);
-        }
+        //[HttpGet("{id}")] //called as /api/[controller]/id
+        //public EmployeeDTO GetById(Guid id)
+        //{
+        //    if(id == Guid.Empty)
+        //    {
+        //        throw new ArgumentException("Employee id is empty");
+        //    }
+        //    Employee employee = _employeeRepository.GetById(id);
+        //    return _mapper.Map<EmployeeDTO>(employee);
+        //}
 
         [HttpPost]
-        public string Save(EmployeeDTO employee) //TODO: Empty Guid => 00000000-0000-0000-0000-000000000000
+        public string Save(EmployeeDTO employee)
         {
             if (employee == null || CheckEmployeeEmpty(employee))
             {

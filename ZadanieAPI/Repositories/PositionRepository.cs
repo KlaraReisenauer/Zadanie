@@ -58,15 +58,6 @@ namespace ZadanieAPI.Repositories
             return _positions;
         }
 
-        public Position GetById(int id)
-        {
-            var position = _dbContext.Positions
-                .FirstOrDefault(p => p.PositionId == id);
-            return position == default(Position) ?
-                throw new Exception("Position does not exist in current scope.")
-                : position;
-        }
-
         public bool Remove(int id)
         {
             try
@@ -102,6 +93,16 @@ namespace ZadanieAPI.Repositories
         #endregion Public Methods
 
         #region Private Methods
+
+        private Position GetById(int id)
+        {
+            var position = _dbContext.Positions
+                .FirstOrDefault(p => p.PositionId == id);
+            return position == default(Position) ?
+                throw new Exception("Position does not exist in current scope.")
+                : position;
+        }
+
         private Position AddNewPosition(Position position)
         {
             var newPosition = _dbContext.Positions.Add(

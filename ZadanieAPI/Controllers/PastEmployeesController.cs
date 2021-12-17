@@ -30,26 +30,26 @@ namespace ZadanieAPI.Controllers
             return pastEmployees.Select(p => _mapper.Map<PastEmployeeDTO>(p));
         }
 
-        [HttpGet("{id}")] //called as /api/[controller]/id TODO: hide path on client?
-        public PastEmployeeDTO GetById(Guid id)
+        //[HttpGet("{id}")] //called as /api/[controller]/id TODO: hide path on client?
+        //public PastEmployeeDTO GetById(Guid employeeId)
+        //{
+        //    if (employeeId == Guid.Empty)
+        //    {
+        //        throw new ArgumentException("Past employee id is empty");
+        //    }
+
+        //    Employee pastEmployee = _pastEmployeeRepository.GetById(employeeId);
+        //    return _mapper.Map<PastEmployeeDTO>(pastEmployee);
+        //}
+
+        [HttpDelete("{employeeId}")]
+        public void Remove(Guid employeeId)
         {
-            if (id == Guid.Empty)
+            if (employeeId == Guid.Empty)
             {
                 throw new ArgumentException("Past employee id is empty");
             }
-
-            Employee pastEmployee = _pastEmployeeRepository.GetById(id);
-            return _mapper.Map<PastEmployeeDTO>(pastEmployee);
-        }
-
-        [HttpDelete("{id}")]
-        public void Remove(Guid id)
-        {
-            if (id == Guid.Empty)
-            {
-                throw new ArgumentException("Past employee id is empty");
-            }
-            _pastEmployeeRepository.Remove(id);
+            _pastEmployeeRepository.Remove(employeeId);
         }
     }
 }
