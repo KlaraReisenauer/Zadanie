@@ -53,7 +53,7 @@ namespace ZadanieAPI.Repositories
 
         public IList<Position> GetAll()
         {
-            var positions = _dbContext.Positions.ToList();
+               var positions = _dbContext.Positions.ToList();
             //TODO: remove when above working
             return _positions;
         }

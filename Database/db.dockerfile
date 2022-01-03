@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/mssql/server:2019-latest AS build
 ENV ACCEPT_EULA=Y
-ENV SA_PASSWORD=SQLDB.CONTAINER
+ENV SA_PASSWORD=Pswd0123!
 WORKDIR /tmp
 COPY Employee_DB.bak .
 COPY restore-backup.sql .
 RUN /opt/mssql/bin/sqlservr --accept-eula & sleep 20 \
-    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "SQLDB.CONTAINER" -i /tmp/restore-backup.sql \
+    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Pswd0123!" -i /tmp/restore-backup.sql \
     && pkill sqlservr
 
 FROM mcr.microsoft.com/mssql/server:2019-latest AS release

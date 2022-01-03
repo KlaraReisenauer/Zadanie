@@ -28,7 +28,7 @@ namespace ZadanieAPI
         {
             base.ConfigureServices(services);
 
-            services.AddDbContext<CoreDbContext>(op => op.UseSqlServer(Configuration.GetConnectionString("LocalDockerConnection")));
+            services.AddDbContext<CoreDbContext>(op => op.UseSqlServer(Configuration.GetConnectionString("Default")));
             services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();

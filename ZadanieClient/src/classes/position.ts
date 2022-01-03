@@ -35,7 +35,7 @@ export class Position {
                 PositionId: 6,
                 name: "Obchodnik",
             }];
-        let positions = this.getAllPositions();        
+        const positions = this.getAllPositions();        
 
         return tmpPositions;
     }
