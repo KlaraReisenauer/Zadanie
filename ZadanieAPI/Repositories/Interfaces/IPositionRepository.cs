@@ -6,9 +6,9 @@ namespace ZadanieAPI.Repositories.Interfaces
 {
     public interface IPositionRepository
     {
-        IList<Position> GetAll();
+        IEnumerable<Position> GetAll();
 
-        Position Save(Position position);
+        int Save(Position position);
 
         bool Remove(int id);
     }

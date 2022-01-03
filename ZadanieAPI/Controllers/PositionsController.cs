@@ -51,9 +51,8 @@ namespace ZadanieAPI.Controllers
                 throw new ArgumentException("Position is not in valid format. Position name cannot be empty.");
             }
 
-            var savedPosition = _positionRepository.Save(
+            return _positionRepository.Save(
                 _mapper.Map<Position>(position));
-            return savedPosition.PositionId;
         }
 
         [HttpDelete("{positionId}")]

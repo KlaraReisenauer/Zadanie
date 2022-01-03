@@ -30,39 +30,29 @@ namespace ZadanieAPI.Controllers
             return employees.Select(e => _mapper.Map<EmployeeDTO>(e)).ToList();
         }
 
-        //[HttpGet("{id}")] //called as /api/[controller]/id
-        //public EmployeeDTO GetById(Guid id)
-        //{
-        //    if(id == Guid.Empty)
-        //    {
-        //        throw new ArgumentException("Employee id is empty");
-        //    }
-        //    Employee employee = _employeeRepository.GetById(id);
-        //    return _mapper.Map<EmployeeDTO>(employee);
-        //}
-
         [HttpPost]
-        public string Save(EmployeeDTO employee)
+        public Guid Save(EmployeeDTO employee)
         {
             if (employee == null || CheckEmployeeEmpty(employee))
             {
                 throw new ArgumentException("Employee data is empty or it is not validly filled. Check required options.");
             }
 
-            Employee empl = _employeeRepository.Save(
+            Guid emplId = _employeeRepository.Save(
                 _mapper.Map<Employee>(employee));
-            return empl.EmployeeId.ToString();  //TODO: is it good practice??
+                
+            return emplId;
         }
 
         [HttpDelete]
-        public void Remove(Guid employeeId, bool removePermanently = false)
+        public void Remove(DeleteRequest request)
         {
-            if (employeeId == Guid.Empty)
+            if (request.EmployeeId == Guid.Empty)
             {
                 throw new ArgumentException("Employee id is empty");
             }
 
-            _employeeRepository.Remove(employeeId, removePermanently);
+            _employeeRepository.Remove(request.EmployeeId, request.RemovePermanently);
         }
 
         private bool CheckEmployeeEmpty(EmployeeDTO employee)

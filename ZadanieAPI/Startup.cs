@@ -28,7 +28,8 @@ namespace ZadanieAPI
         {
             base.ConfigureServices(services);
 
-            services.AddDbContext<CoreDbContext>(op => op.UseSqlServer(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<CoreDbContext>(op => op.UseSqlServer(Configuration.GetConnectionString("Default"))
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
             services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();

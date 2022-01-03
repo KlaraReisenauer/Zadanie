@@ -10,7 +10,7 @@ namespace ZadanieAPI.Repositories.Interfaces
 
         //Employee GetById(Guid id);
 
-        Employee Save(Employee employee);
+        Guid Save(Employee employee);
 
         bool Remove(Guid id, bool removePermanently);
     }

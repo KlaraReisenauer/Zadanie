@@ -9,39 +9,6 @@ namespace ZadanieAPI.Repositories
 {
     public class PositionRepository : IPositionRepository
     {
-        // TODO: Remove after db is properly connected
-        private IList<Position> _positions = new List<Position>(){
-                new Position
-                {
-                    PositionId = 1,
-                    Name = "Other"
-                },
-                new Position
-                {
-                    PositionId = 2,
-                    Name = "Tester"
-                },
-                new Position
-                {
-                    PositionId = 3,
-                    Name = "Programmer"
-                },
-                new Position
-                {
-                    PositionId = 4,
-                    Name = "Support"
-                },
-                new Position
-                {
-                    PositionId = 5,
-                    Name = "Analyst"
-                },
-                new Position
-                {
-                    PositionId = 6,
-                    Name = "Tradesman"
-                }
-            };
         private readonly CoreDbContext _dbContext;
 
         public PositionRepository(CoreDbContext dbContext)
@@ -51,11 +18,9 @@ namespace ZadanieAPI.Repositories
 
         #region Public Methods
 
-        public IList<Position> GetAll()
+        public IEnumerable<Position> GetAll()
         {
-               var positions = _dbContext.Positions.ToList();
-            //TODO: remove when above working
-            return _positions;
+            return _dbContext.Positions.OrderBy(p => p.PositionId);
         }
 
         public bool Remove(int id)
@@ -69,22 +34,13 @@ namespace ZadanieAPI.Repositories
             catch (Exception) { } //if already removed - no problem
 
             return true;
-
-            //TODO: remove when above working
-            Position posToRemove = _positions.FirstOrDefault(p => p.PositionId == id);
-            if (posToRemove != default(Position))
-            {
-                return _positions.Remove(posToRemove);
-            }
-
-            return true;
         }
 
-        public Position Save(Position position)
+        public int Save(Position position)
         {
             if (position.PositionId <= 0)
             {
-                return AddNewPosition(position);
+                return AddNewPosition(position.Name);
             }
 
             return EditPosition(position);
@@ -103,30 +59,27 @@ namespace ZadanieAPI.Repositories
                 : position;
         }
 
-        private Position AddNewPosition(Position position)
+        private int AddNewPosition(string positionName)
         {
             var newPosition = _dbContext.Positions.Add(
                 new Position {
-                    Name = position.Name
+                    Name = positionName
                 });
             _dbContext.SaveChanges();
-
-            //TODO: remove when above working
-            position.PositionId = _positions.Max(p => p.PositionId) + 1;
-            _positions.Add(position);
-            return position;
+            
+            return newPosition.Entity.PositionId;
         }
 
-        private Position EditPosition(Position position)
+        private int EditPosition(Position position)
         {
-            var positionToUpdate = GetById(position.PositionId);
-            var result = _dbContext.Positions.Update(positionToUpdate);
-            _dbContext.SaveChanges();
+            if(GetById(position.PositionId) != null){
+                var result = _dbContext.Positions.Update(position);
+                _dbContext.SaveChanges();
 
-            //TODO: remove when above working
-            Position posToUpdate = _positions.First(p => p.PositionId == position.PositionId);
-            posToUpdate.Name = position.Name; 
-            return position;
+                return result.Entity.PositionId;
+            }
+
+            throw new Exception("Position cannot be updated as it does not exist in current scope.");            
         }
 
         #endregion Private Methods

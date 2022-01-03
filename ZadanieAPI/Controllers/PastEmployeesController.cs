@@ -29,19 +29,7 @@ namespace ZadanieAPI.Controllers
             IList<Employee> pastEmployees = _pastEmployeeRepository.GetAll();
             return pastEmployees.Select(p => _mapper.Map<PastEmployeeDTO>(p));
         }
-
-        //[HttpGet("{id}")] //called as /api/[controller]/id TODO: hide path on client?
-        //public PastEmployeeDTO GetById(Guid employeeId)
-        //{
-        //    if (employeeId == Guid.Empty)
-        //    {
-        //        throw new ArgumentException("Past employee id is empty");
-        //    }
-
-        //    Employee pastEmployee = _pastEmployeeRepository.GetById(employeeId);
-        //    return _mapper.Map<PastEmployeeDTO>(pastEmployee);
-        //}
-
+        
         [HttpDelete("{employeeId}")]
         public void Remove(Guid employeeId)
         {

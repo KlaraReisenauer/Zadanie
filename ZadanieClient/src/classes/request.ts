@@ -6,7 +6,7 @@ export enum RequestType {
     Get = "GET",
 }
 export class Request {
-    private readonly _rootURL = 'https://localhost:49155/api';
+    private readonly _rootURL = 'http://localhost:3000/api';
 
     public prepareRequest(path: string, type: string, data?: any) {   //return parsed response??
         const configuration = this.prepareRequestData(data);
