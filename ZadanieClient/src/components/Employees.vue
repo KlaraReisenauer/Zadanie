@@ -4,14 +4,16 @@
     :items="employees"
     :search="search"
     sort-by="fullname"
-    class="elevation-1"
+    class="elevation-1 py-8 px-4"
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>Employees</v-toolbar-title>
-        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-toolbar-title class="primary--text text-h4"
+          >Employees</v-toolbar-title
+        >
         <v-spacer></v-spacer>
         <v-text-field
+          class="mb-3 mt-6"
           v-model="search"
           append-icon="mdi-magnify"
           label="Search"
@@ -20,28 +22,39 @@
         ></v-text-field>
         <v-dialog v-model="dialog" max-width="800px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" @click="newEmployee" v-bind="attrs" v-on="on">
+            <v-btn
+              color="primary"
+              dark
+              class="mb-2 mt-4 ml-5"
+              @click="newEmployee"
+              v-bind="attrs"
+              v-on="on"
+            >
               New Employee
             </v-btn>
           </template>
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+          <v-form ref="form" v-model="valid" class="formclass pa-4">
+            <v-container>
+              <v-row class="pa-8">
+                <span class="primary--text text-h5">{{ formTitle }}</span>
+              </v-row>
 
-            <v-card-text>
-              <v-container>
+              <v-container class="pa-8">
                 <v-row>
                   <v-col cols="12" sm="6" md="6">
                     <v-text-field
                       v-model="editedItem.name"
                       label="Name(s)"
+                      :rules="requiredFieldRules"
+                      required
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="6">
                     <v-text-field
                       v-model="editedItem.surname"
                       label="Surname(s)"
+                      :rules="requiredFieldRules"
+                      required
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -72,6 +85,7 @@
                           v-bind="attrs"
                           v-on="on"
                           :disabled="editingModeOpen"
+                          :rules="requiredFieldRules"
                           required
                         ></v-text-field>
                       </template>
@@ -100,6 +114,8 @@
                           readonly
                           v-bind="attrs"
                           v-on="on"
+                          :rules="requiredFieldRules"
+                          required
                         ></v-text-field>
                       </template>
                       <v-date-picker
@@ -116,6 +132,8 @@
                       v-model.number="editedItem.salary"
                       type="number"
                       label="Salary"
+                      :rules="requiredFieldRules"
+                      required
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="6">
@@ -125,29 +143,31 @@
                       label="Position"
                       :items="positions"
                       item-text="name"
+                      :rules="requiredFieldRules"
+                      required
                     ></v-select>
                   </v-col>
                 </v-row>
               </v-container>
-            </v-card-text>
 
-            <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="primary" @click="save"> Save </v-btn>
-            </v-card-actions>
-          </v-card>
+              <v-row class="justify-end">
+                <v-btn color="primary" text @click="close"> Cancel </v-btn>
+                <v-btn :disabled="!valid" color="primary" @click="save">
+                  Save
+                </v-btn>
+              </v-row>
+            </v-container>
+          </v-form>
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h7"
+            <v-card-title class="text-h7 text-center"
               >Are you sure you want to delete this Employee?</v-card-title
             >
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete"
-                >Cancel</v-btn
-              >
+              <v-btn color="primary" text @click="closeDelete">Cancel</v-btn>
               <v-btn color="primary" @click="archivateItem">OK</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
@@ -155,12 +175,12 @@
         </v-dialog>
         <v-dialog v-model="dialogArchivate" max-width="500px">
           <v-card>
-            <v-card-title class="text-h7"
+            <v-card-title class="text-h7 text-center"
               >Would you like to archivate the employee?</v-card-title
             >
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="removeItemPermanently"
+              <v-btn color="primary" text @click="removeItemPermanently"
                 >No</v-btn
               >
               <v-btn color="primary" @click="archivateItemConfirm">Yes</v-btn>
@@ -204,6 +224,13 @@ var _employees = new Employee();
 
 export default {
   data: () => ({
+    valid: false,
+    requiredFieldRules: [
+      (v) => !!v || "Required field",
+      // (v) =>
+      //   (v && v.length > 1 && v.length <= 150) ||
+      //   "Position name must have at least 2 characters, but no more than 150",
+    ],
     search: "",
     today: new Date().toISOString().substr(0, 10),
     dialog: false,
@@ -280,9 +307,9 @@ export default {
       this.positions = _employees.loadPositions();
     },
 
-    newEmployee(){
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
+    newEmployee() {
+      this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedIndex = -1;
     },
 
     editItem(empl) {
@@ -362,5 +389,8 @@ export default {
 };
 </script>
 
-<style lang="sass" scoped>
+<style scoped>
+.formclass {
+  background-color: white;
+}
 </style>

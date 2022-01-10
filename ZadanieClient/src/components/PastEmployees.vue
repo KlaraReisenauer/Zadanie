@@ -4,14 +4,14 @@
     :items="employees"
     :search="search"
     sort-by="fullname"
-    class="elevation-1"
+    class="elevation-1 py-8 px-4"
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>Past Employees</v-toolbar-title>
-        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-toolbar-title class="primary--text text-h4">Past Employees</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-text-field
+                  class="mb-3 pr-2 mt-6"
           v-model="search"
           append-icon="mdi-magnify"
           label="Search"
@@ -21,7 +21,7 @@
         <v-dialog v-model="dialog" max-width="800px">
           <v-card>
             <v-card-title>
-              <span class="text-h5">View Employee</span>
+              <span class="text-h5 primary--text">View Employee</span>
             </v-card-title>
 
             <v-card-text>
@@ -98,12 +98,12 @@
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h7"
+            <v-card-title class="text-h7 text-center"
               >Are you sure you want to permanently delete this Employee?</v-card-title
             >
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete"
+              <v-btn color="primary" text @click="closeDelete"
                 >Cancel</v-btn
               >
               <v-btn color="primary" @click="deleteItemConfirm">OK</v-btn>
