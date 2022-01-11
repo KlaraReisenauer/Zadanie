@@ -39,7 +39,7 @@ namespace ZadanieAPI
 
             services.AddCors(c =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                c.AddPolicy(name: "AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
             services.AddControllers();
@@ -66,12 +66,13 @@ namespace ZadanieAPI
 
             app.UseAuthorization();
 
+            app.UseCors("AllowOrigin");
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
 
-            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
     }
 }

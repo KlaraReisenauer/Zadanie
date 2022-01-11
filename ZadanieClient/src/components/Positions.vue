@@ -33,7 +33,7 @@
             </v-btn>
           </template>
           <v-form ref="form" v-model="valid" class="formclass pa-4">
-            <v-container >
+            <v-container>
               <v-row>
                 <span class="primary--text text-h5">{{ formTitle }}</span>
               </v-row>
@@ -104,9 +104,9 @@
 
 
 <script>
-import { Position } from "../classes/position";
-
-let _position = new Position();
+// import { Position } from "../classes/position";
+import axios from "axios";
+import { PositionURL } from "../classes/common";
 
 export default {
   data: () => ({
@@ -132,11 +132,11 @@ export default {
     positions: [],
     editedIndex: -1,
     editedItem: {
-      PositionId: 0,
+      positionId: 0,
       name: "",
     },
     defaultItem: {
-      PositionId: 0,
+      positionId: 0,
       name: "",
     },
   }),
@@ -161,8 +161,16 @@ export default {
   },
 
   methods: {
-    initialize() {
-      this.positions = _position.loadPositions();
+    async initialize() {
+      axios.get(PositionURL).then((result) => {
+        console.log(`Positions were successfully retrieved`);
+        this.positions = result.data;
+      });
+
+      // let _position = new Position();
+      // _position.loadPositions().then((result) => {
+      //   this.positions = result;
+      // });
     },
 
     editItem(item) {
@@ -178,7 +186,7 @@ export default {
     },
 
     deleteItemConfirm() {
-      _position.deletePosition(this.editedItem.PositionId);
+      this.removePosition(this.editedItem.positionId);
       this.positions.splice(this.editedIndex, 1);
       this.closeDelete();
     },
@@ -202,21 +210,47 @@ export default {
     save() {
       if (this.editedIndex > -1) {
         if (this.editedItem.name !== this.positions[this.editedIndex].name) {
-          _position.editPosition(this.editedItem);
+          this.editExistingPosition(this.editedItem);
           Object.assign(this.positions[this.editedIndex], this.editedItem);
         }
       } else {
-        let positionWithId = _position.addNewPosition(this.editedItem.name);
-        this.positions.push(positionWithId);
+        this.addNewPosition(this.editedItem.name);
       }
       this.close();
+    },
+
+    editExistingPosition(position) {
+      axios.post(PositionURL, position).then(() => {
+        console.log(
+          `Position ${JSON.stringify(position)} was successfully updated`
+        );
+      });
+    },
+
+    addNewPosition(positionName) {
+      axios.post(PositionURL, { name: positionName }).then((result) => {
+        console.log(
+          `New position with id ${result.data} was successfully added`
+        );
+        this.positions.push({
+          positionId: result.data,
+          name: positionName,
+        });
+      });
+    },
+
+    removePosition(positionId) {
+      const removePositionPath = PositionURL + "/" + positionId;
+      axios.delete(removePositionPath).then(() => {
+        console.log(`Position with id ${positionId} was successfully removed`);
+      });
     },
   },
 };
 </script>
 
 <style>
-  .formclass {
-    background-color: white;
-  }
+.formclass {
+  background-color: white;
+}
 </style>

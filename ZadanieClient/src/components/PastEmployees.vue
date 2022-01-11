@@ -8,10 +8,12 @@
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title class="primary--text text-h4">Past Employees</v-toolbar-title>
+        <v-toolbar-title class="primary--text text-h4"
+          >Past Employees</v-toolbar-title
+        >
         <v-spacer></v-spacer>
         <v-text-field
-                  class="mb-3 pr-2 mt-6"
+          class="mb-3 pr-2 mt-6"
           v-model="search"
           append-icon="mdi-magnify"
           label="Search"
@@ -99,13 +101,12 @@
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
             <v-card-title class="text-h7 text-center"
-              >Are you sure you want to permanently delete this Employee?</v-card-title
+              >Are you sure you want to permanently delete this
+              Employee?</v-card-title
             >
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="closeDelete"
-                >Cancel</v-btn
-              >
+              <v-btn color="primary" text @click="closeDelete">Cancel</v-btn>
               <v-btn color="primary" @click="deleteItemConfirm">OK</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
@@ -142,8 +143,12 @@
 </template>
 
 <script>
-import { PastEmployee } from "../classes/pastEmployee";
-var _employee = new PastEmployee();
+import { Employee } from "../classes/employee";
+import axios from "axios";
+import { PastEmployeeURL } from "../classes/common";
+import { PositionURL } from "../classes/common";
+
+var _employee = new Employee();
 
 export default {
   data: () => ({
@@ -176,7 +181,7 @@ export default {
       startDate: new Date().toISOString().substr(0, 10),
       positionId: 0,
       positionName: "",
-      endDate: new Date().toISOString().substr(0, 10)
+      endDate: new Date().toISOString().substr(0, 10),
     },
     defaultItem: {
       employeeId: "",
@@ -189,7 +194,7 @@ export default {
       startDate: new Date().toISOString().substr(0, 10),
       positionId: 0,
       positionName: "",
-      endDate: new Date().toISOString().substr(0, 10)
+      endDate: new Date().toISOString().substr(0, 10),
     },
   }),
 
@@ -208,7 +213,27 @@ export default {
 
   methods: {
     initialize() {
-      this.employees = _employee.loadPastEmployees();      
+      const posRequest = axios.get(PositionURL);
+      const emplRequest = axios.get(PastEmployeeURL);
+
+      axios
+        .all([posRequest, emplRequest])
+        .then(
+          axios.spread((...responses) => {
+            const positions = responses[0].data;
+            this.employees = responses[1].data;
+
+            this.employees.forEach((el) => {
+              el.fullname = _employee.createFullName(el.name, el.surname);
+              el.positionName =
+                positions.find((p) => p.positionId === el.positionId)?.name ??
+                "";
+            });
+          })
+        )
+        .catch((errors) => {
+          console.error(errors);
+        });
     },
 
     viewItem(empl) {
@@ -224,7 +249,7 @@ export default {
     },
 
     deleteItemConfirm() {
-      _employee.deletePastEmployee(this.editedItem.employeeId);
+      this.removeEmployee(this.editedItem.employeeId);
       this.employees.splice(this.editedIndex, 1);
       this.closeDelete();
     },
@@ -242,6 +267,15 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+      });
+    },
+
+    removeEmployee(employeeId) {
+      const removeEmployeePath = PastEmployeeURL + "/" + employeeId;
+      axios.delete(removeEmployeePath).then(() => {
+        console.log(
+          `Past Employee with id ${employeeId} was permanently removed`
+        );
       });
     },
   },

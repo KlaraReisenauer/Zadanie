@@ -220,6 +220,9 @@
 
 <script>
 import { Employee } from "../classes/employee";
+import axios from "axios";
+import {EmployeeURL, PositionURL, EmptyGuid} from "../classes/common";
+
 var _employees = new Employee();
 
 export default {
@@ -295,16 +298,28 @@ export default {
 
   created() {
     this.initialize();
-    this.initPositions();
   },
 
   methods: {
     initialize() {
-      this.employees = _employees.loadEmployees();
-    },
+      const posRequest = axios.get(PositionURL);
+      const emplRequest = axios.get(EmployeeURL);
 
-    initPositions() {
-      this.positions = _employees.loadPositions();
+      axios
+        .all([posRequest, emplRequest])
+        .then(
+          axios.spread((...responses) => {
+            this.positions = responses[0].data;
+            const tmpEmployees = responses[1].data;
+
+            tmpEmployees.forEach((el) => {
+              this.employees.push(_employees.fillMissingData(el, this.positions));
+            });
+          })
+        )
+        .catch((errors) => {
+          console.error(errors);
+        });
     },
 
     newEmployee() {
@@ -331,13 +346,41 @@ export default {
     },
 
     removeItemPermanently() {
-      _employees.deleteEmployee(this.editedItem.employeeId);
+      axios
+        .delete(
+          EmployeeURL,
+          //{ employeeId : this.editedItem.employeeId, removePermanently : true }
+          _employees.prepareRemoveRequest(this.editedItem.employeeId)
+        )
+        .then(() => {
+          console.log(
+            `Successfully removed employee with id ${this.editedItem.employeeId}`
+          );
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
       this.employees.splice(this.editedIndex, 1);
       this.closeArchivateDialog();
     },
 
     archivateItemConfirm() {
-      _employees.deleteAndArchiveEmployee(this.editItem.employeeId);
+      axios
+        .delete(
+          EmployeeURL,
+          //{ employeeId : this.editedItem.employeeId, removePermanently : false }
+          _employees.prepareArchivateRequest(this.editedItem.employeeId)
+        )
+        .then(() => {
+          console.log(
+            `Successfully archivated  employee with id ${this.editedItem.employeeId}`
+          );
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
       this.employees.splice(this.editedIndex, 1);
       this.closeArchivateDialog();
     },
@@ -375,15 +418,52 @@ export default {
             this.editedItem
           )
         ) {
+          this.editExistingEmployee(this.editedItem);
           Object.assign(
             this.employees[this.editedIndex],
-            _employees.editEmployee(this.editedItem)
+            _employees.fillMissingData(this.editedItem, this.positions)
           );
         }
       } else {
-        this.employees.push(_employees.addNewEmployee(this.editedItem));
+        this.addNewEmployee(this.editedItem);
       }
       this.close();
+    },
+
+    editExistingEmployee(employee) {
+      employee.positionId = _employees.getPossitionIdByName(
+        this.positions,
+        employee.positionName
+      );
+
+      axios
+        .post(EmployeeURL, employee)
+        .then(() => {
+          console.log(
+            `Employee with id ${employee.employeeId} was successfully updated`
+          );
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+
+    addNewEmployee(employee) {
+      employee.employeeId = EmptyGuid;
+      employee.positionId = _employees.getPossitionIdByName(
+        this.positions,
+        employee.positionName
+      );
+
+      axios.post(EmployeeURL, employee).then((result) => {
+        console.log(
+          `New employee with id ${result.data} was successfully created`
+        );
+        employee.employeeId = result.data;
+        this.employees.push(
+          _employees.fillMissingData(employee, this.positions)
+        );
+      });
     },
   },
 };
