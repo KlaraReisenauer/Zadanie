@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ZadanieAPI.Database.Models;
-using ZadanieAPI.Models;
 using ZadanieAPI.Repositories.Interfaces;
 
 namespace ZadanieAPI.Repositories

@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using ZadanieAPI.Database.Models;
 using ZadanieAPI.Models;
@@ -24,46 +22,35 @@ namespace ZadanieAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<PositionDTO> GetAll()
+        public IActionResult GetAll()
         {
             var positions = _positionRepository.GetAll();
-            return positions.Select(p => _mapper.Map<PositionDTO>(p));
+            return Ok(positions.Select(p => _mapper.Map<PositionDTO>(p)));
         }
 
-        //[HttpGet("{id}")] //called as /api/[controller]/id
-        //public PositionDTO GetById(int id)
-        //{
-        //    if(id <= 0)
-        //    {
-        //        throw new ArgumentException("Position id format is not valid");
-        //    }
-
-        //    var position = _positionRepository.GetById(id);
-        //    return _mapper.Map<PositionDTO>(position);
-        //}
-
         [HttpPost]
-        public int Save(PositionDTO position)
+        public IActionResult Save(PositionDTO position)
         {
-            if(string.IsNullOrEmpty(position.Name) ||
+            if (string.IsNullOrEmpty(position.Name) ||
                 string.IsNullOrWhiteSpace(position.Name))
             {
-                throw new ArgumentException("Position is not in valid format. Position name cannot be empty.");
+                return BadRequest("Position is not in valid format. Position name cannot be empty.");
             }
 
-            return _positionRepository.Save(
-                _mapper.Map<Position>(position));
+            return Ok(_positionRepository.Save(
+                _mapper.Map<Position>(position)));
         }
 
         [HttpDelete("{positionId}")]
-        public void Remove(int positionId)
+        public IActionResult Remove(int positionId)
         {
             if (positionId <= 0)
             {
-                throw new ArgumentException("Position id format is not valid");
+                return BadRequest("Position id format is not valid.");
             }
 
             _positionRepository.Remove(positionId);
+            return Ok();
         }
     }
 }

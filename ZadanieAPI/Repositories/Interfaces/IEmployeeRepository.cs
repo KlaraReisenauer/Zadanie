@@ -8,8 +8,6 @@ namespace ZadanieAPI.Repositories.Interfaces
     {
         IList<Employee> GetAll();
 
-        //Employee GetById(Guid id);
-
         Guid Save(Employee employee);
 
         bool Remove(Guid id, bool removePermanently);

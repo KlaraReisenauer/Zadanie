@@ -23,8 +23,10 @@ namespace ZadanieAPI
 
         public static IKernel CreateKernel()
         {
-            var settings = new NinjectSettings();
-            settings.LoadExtensions = false;
+            var settings = new NinjectSettings
+            {
+                LoadExtensions = false
+            };
 
             var kernel = new AspNetCoreKernel(settings);
             kernel.Load(typeof(AspNetCoreHostConfiguration).Assembly);
@@ -39,9 +41,6 @@ namespace ZadanieAPI
             kernel.Bind<IEmployeeRepository>().To<EmployeeRepository>();
             kernel.Bind<IPastEmployeeRepository>().To<PastEmployeeRepository>();
             kernel.Bind<IPositionRepository>().To<PositionRepository>();
-            //kernel.Bind<IDBConnectionFactory>().To<SqlConnectionFactory>()
-            //    .WithConstructorArgument("connectionString",
-            //    "Server=localhost,11433;Database=Employee_DB;Trusted_Connection=True;User ID = sa; Password = SQLDB.CONTAINER");
         }
     }
 }

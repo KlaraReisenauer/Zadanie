@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using ZadanieAPI.Database.Models;
 using ZadanieAPI.Models;
@@ -24,43 +23,46 @@ namespace ZadanieAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<EmployeeDTO> GetAll()
+        public IActionResult GetAll()
         {
-            IList<Employee> employees = _employeeRepository.GetAll();
-            return employees.Select(e => _mapper.Map<EmployeeDTO>(e)).ToList();
+            var employees = _employeeRepository.GetAll();
+            return Ok(employees.Select(e => _mapper.Map<EmployeeDTO>(e)).ToList());
         }
 
         [HttpPost]
-        public Guid Save(EmployeeDTO employee)
+        public IActionResult Save(EmployeeDTO employee)
         {
-            if (employee == null || CheckEmployeeEmpty(employee))
+            if (employee == null || CheckEmployeeNotValid(employee))
             {
-                throw new ArgumentException("Employee data is empty or it is not validly filled. Check required options.");
+                return BadRequest("Employee data is empty or it is not validly filled. Check required options.");
             }
 
             Guid emplId = _employeeRepository.Save(
                 _mapper.Map<Employee>(employee));
                 
-            return emplId;
+            return Ok(emplId);
         }
 
         [HttpDelete]
-        public void Remove(DeleteRequest request)
+        public IActionResult Remove(DeleteRequest request)
         {
             if (request.EmployeeId == Guid.Empty)
             {
-                throw new ArgumentException("Employee id is empty");
+                return BadRequest("Employee id is empty");
             }
 
             _employeeRepository.Remove(request.EmployeeId, request.RemovePermanently);
+            return Ok();
         }
 
-        private bool CheckEmployeeEmpty(EmployeeDTO employee)
+        private static bool CheckEmployeeNotValid(EmployeeDTO employee)
         {
-            return string.IsNullOrEmpty(employee.Name) &&
-                string.IsNullOrEmpty(employee.Surname) &&
-                employee.PositionId <= 0 &&
-                employee.Salary == 0 &&
+            return string.IsNullOrEmpty(employee.Name) ||
+                string.IsNullOrWhiteSpace(employee.Name) ||
+                string.IsNullOrEmpty(employee.Surname) ||
+                string.IsNullOrWhiteSpace(employee.Surname) ||
+                employee.PositionId <= 0 ||
+                employee.Salary == 0 ||
                 employee.DateOfBirth == default(DateTime);
         }
 

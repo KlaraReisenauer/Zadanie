@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using ZadanieAPI.Database.Models;
-using ZadanieAPI.Models;
 
 namespace ZadanieAPI.Repositories.Interfaces
 {

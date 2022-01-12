@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ZadanieAPI.Repositories.Interfaces;
-using ZadanieAPI.Models;
 using ZadanieAPI.Database.Models;
+using ZadanieAPI.Repositories.Interfaces;
 
 namespace ZadanieAPI.Repositories
 {
