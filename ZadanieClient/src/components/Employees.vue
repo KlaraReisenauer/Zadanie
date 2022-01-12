@@ -4,7 +4,7 @@
     :items="employees"
     :search="search"
     sort-by="fullname"
-    class="elevation-1 py-8 px-4"
+    class="py-8 px-4"
   >
     <template v-slot:top>
       <v-toolbar flat>
@@ -20,6 +20,29 @@
           single-line
           hide-details
         ></v-text-field>
+        <div>
+          <v-snackbar v-model="snackbar" :timeout="timeout" :multi-line="true">
+            {{ snackbar_text }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn
+                color="primary"
+                text
+                v-bind="attrs"
+                @click="snackbar = false"
+              >
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
+        </div>
+        <v-progress-linear
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          bottom
+          color="primary"
+        ></v-progress-linear>
         <v-dialog v-model="dialog" max-width="800px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -75,7 +98,7 @@
                       transition="scale-transition"
                       offset-y
                       min-width="auto"
-                      ><!-- :disabled="editingModeOpen" -->
+                    >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="editedItem.dateOfBirth"
@@ -213,7 +236,13 @@
       </v-btn>
     </template>
     <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize"> Reset </v-btn>
+      <div v-if="!loading" class="text-center">
+        <h4>No employee data found</h4>
+        <v-btn color="primary" @click="initialize"> Reload data </v-btn>
+      </div>
+      <div v-if="loading" class="text-center">
+        <h4>Loading employee data...</h4>
+      </div>
     </template>
   </v-data-table>
 </template>
@@ -221,21 +250,25 @@
 <script>
 import { Employee } from "../classes/employee";
 import axios from "axios";
-import {EmployeeURL, PositionURL, EmptyGuid} from "../classes/common";
+import {
+  EmployeeURL,
+  PositionURL,
+  EmptyGuid,
+  handleErrorMsg,
+} from "../classes/common";
 
 var _employees = new Employee();
 
 export default {
   data: () => ({
+    loading: false,
+    snackbar: false,
+    snackbar_text: "",
+    timeout: 3000,
     valid: false,
-    requiredFieldRules: [
-      (v) => !!v || "Required field",
-      // (v) =>
-      //   (v && v.length > 1 && v.length <= 150) ||
-      //   "Position name must have at least 2 characters, but no more than 150",
-    ],
+    requiredFieldRules: [(v) => !!v || "Required field"],
     search: "",
-    today: new Date().toISOString().substr(0, 10),
+    today: new Date().toISOString().substring(0, 10),
     dialog: false,
     editingModeOpen: false,
     dialogDelete: false,
@@ -263,7 +296,7 @@ export default {
       address: "",
       dateOfBirth: "",
       salary: 0.0,
-      startDate: new Date().toISOString().substr(0, 10),
+      startDate: new Date().toISOString().substring(0, 10),
       positionId: 0,
       positionName: "",
     },
@@ -275,7 +308,7 @@ export default {
       address: "",
       dateOfBirth: "",
       salary: 0.0,
-      startDate: new Date().toISOString().substr(0, 10),
+      startDate: new Date().toISOString().substring(0, 10),
       positionId: 0,
       positionName: "",
     },
@@ -291,9 +324,6 @@ export default {
     dialog(val) {
       val || this.close();
     },
-    // dialogDelete(val) {
-    //   val || this.dialogDelete = false; //TODO: test only popup closing(not by cancel)
-    // },
   },
 
   created() {
@@ -302,6 +332,7 @@ export default {
 
   methods: {
     initialize() {
+      this.loading = true;
       const posRequest = axios.get(PositionURL);
       const emplRequest = axios.get(EmployeeURL);
 
@@ -313,12 +344,16 @@ export default {
             const tmpEmployees = responses[1].data;
 
             tmpEmployees.forEach((el) => {
-              this.employees.push(_employees.fillMissingData(el, this.positions));
+              this.employees.push(
+                _employees.fillMissingData(el, this.positions)
+              );
             });
+            this.loading = false;
           })
         )
         .catch((errors) => {
-          console.error(errors);
+          this.showErrorMsg(errors);
+          this.loading = false;
         });
     },
 
@@ -349,7 +384,6 @@ export default {
       axios
         .delete(
           EmployeeURL,
-          //{ employeeId : this.editedItem.employeeId, removePermanently : true }
           _employees.prepareRemoveRequest(this.editedItem.employeeId)
         )
         .then(() => {
@@ -358,7 +392,7 @@ export default {
           );
         })
         .catch((error) => {
-          console.error(error);
+          this.showErrorMsg(error);
         });
 
       this.employees.splice(this.editedIndex, 1);
@@ -369,7 +403,6 @@ export default {
       axios
         .delete(
           EmployeeURL,
-          //{ employeeId : this.editedItem.employeeId, removePermanently : false }
           _employees.prepareArchivateRequest(this.editedItem.employeeId)
         )
         .then(() => {
@@ -378,7 +411,7 @@ export default {
           );
         })
         .catch((error) => {
-          console.error(error);
+          this.showErrorMsg(error);
         });
 
       this.employees.splice(this.editedIndex, 1);
@@ -435,6 +468,8 @@ export default {
         this.positions,
         employee.positionName
       );
+      employee.startDate = new Date(employee.startDate).toISOString();
+      employee.dateOfBirth = new Date(employee.dateOfBirth).toISOString();
 
       axios
         .post(EmployeeURL, employee)
@@ -444,7 +479,7 @@ export default {
           );
         })
         .catch((error) => {
-          console.error(error);
+          this.showErrorMsg(error);
         });
     },
 
@@ -455,15 +490,28 @@ export default {
         employee.positionName
       );
 
-      axios.post(EmployeeURL, employee).then((result) => {
-        console.log(
-          `New employee with id ${result.data} was successfully created`
-        );
-        employee.employeeId = result.data;
-        this.employees.push(
-          _employees.fillMissingData(employee, this.positions)
-        );
-      });
+      axios
+        .post(EmployeeURL, employee)
+        .then((result) => {
+          console.log(
+            `New employee with id ${result.data} was successfully created`
+          );
+          employee.employeeId = result.data;
+          this.employees.push(
+            _employees.fillMissingData(employee, this.positions)
+          );
+        })
+        .catch((error) => {
+          this.showErrorMsg(error);
+        });
+    },
+
+    showErrorMsg(error) {
+      console.error(error);
+      let errMsg = handleErrorMsg(error);
+
+      this.snackbar_text = errMsg;
+      this.snackbar = true;
     },
   },
 };

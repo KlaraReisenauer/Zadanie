@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer v-model="drawer" app>
-    <v-sheet color="grey lighten-4" class="pa-4">
+    <v-sheet color="grey lighten-4" class="pa-4" >
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h6 primary--text">
@@ -58,6 +58,3 @@ export default {
   },
 };
 </script>
-
-<style lang="sass" scoped>
-</style>

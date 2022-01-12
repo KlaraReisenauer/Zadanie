@@ -8,12 +8,16 @@ export const PastEmployeeURL = _rooUrl + _pastEmployeePath;
 export const EmployeeURL = _rooUrl + _employeePath;
 export const EmptyGuid = "00000000-0000-0000-0000-000000000000";
 
-export function prepareRequestData(rdata?: any) {
-    return {
-        baseURL: _rooUrl,
-        data: rdata, //(rdata) ? JSON.stringify(rdata) : undefined,
-        xsrfCookieName: 'XSRF-TOKEN',
-        xsrfHeaderName: 'X-XSRF-TOKEN',
-        headers: { 'Content-Type': 'application/json' }
-    };
+export function handleErrorMsg(error : any) : string {
+    let status, msg;
+
+    if(error.response.data.title){
+        status = error.response.data.status;
+        msg = error.response.data.title;
+    }
+    else{
+        status = error.response.status;
+        msg = error.response.data;
+    }
+    return "Error " + status + ": " + msg;
 }

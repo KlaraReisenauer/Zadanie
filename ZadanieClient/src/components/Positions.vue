@@ -4,7 +4,7 @@
     :items="positions"
     :search="search"
     sort-by="name"
-    class="elevation-1 py-8 px-4"
+    class="py-8 px-4"
   >
     <template v-slot:top>
       <v-toolbar flat>
@@ -20,6 +20,29 @@
           single-line
           hide-details
         ></v-text-field>
+        <div>
+          <v-snackbar v-model="snackbar" :timeout="timeout" :multi-line="true">
+            {{ snackbar_text }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn
+                color="primary"
+                text
+                v-bind="attrs"
+                @click="snackbar = false"
+              >
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
+        </div>
+        <v-progress-linear
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          bottom
+          color="primary"
+        ></v-progress-linear>
         <v-dialog v-model="dialog" max-width="500px" min-height="120px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -97,19 +120,28 @@
       </v-btn>
     </template>
     <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize"> Reset </v-btn>
+      <div v-if="!loading" class="text-center">
+        <h4>No position data found</h4>
+        <v-btn color="primary" @click="initialize"> Reload data </v-btn>
+      </div>
+      <div v-if="loading" class="text-center">
+        <h4>Loading position data...</h4>
+      </div>
     </template>
   </v-data-table>
 </template>
 
 
 <script>
-// import { Position } from "../classes/position";
 import axios from "axios";
-import { PositionURL } from "../classes/common";
+import { PositionURL, handleErrorMsg } from "../classes/common";
 
 export default {
   data: () => ({
+    loading: false,
+    snackbar: false,
+    snackbar_text: "",
+    timeout: 3000,
     valid: false,
     positionNameRules: [
       (v) => !!v || "Position name is required",
@@ -161,16 +193,20 @@ export default {
   },
 
   methods: {
-    async initialize() {
-      axios.get(PositionURL).then((result) => {
-        console.log(`Positions were successfully retrieved`);
-        this.positions = result.data;
-      });
+    initialize() {
+      this.loading = true;
 
-      // let _position = new Position();
-      // _position.loadPositions().then((result) => {
-      //   this.positions = result;
-      // });
+      axios
+        .get(PositionURL)
+        .then((result) => {
+          console.log(`Positions were successfully retrieved`);
+          this.positions = result.data;
+          this.loading = false;
+        })
+        .catch((error) => {
+          this.showErrorMsg(error);
+          this.loading = false;
+        });
     },
 
     editItem(item) {
@@ -220,30 +256,57 @@ export default {
     },
 
     editExistingPosition(position) {
-      axios.post(PositionURL, position).then(() => {
-        console.log(
-          `Position ${JSON.stringify(position)} was successfully updated`
-        );
-      });
+      axios
+        .post(PositionURL, position)
+        .then(() => {
+          console.log(
+            `Position ${JSON.stringify(position)} was successfully updated`
+          );
+        })
+        .catch((error) => {
+          this.showErrorMsg(error);
+          this.initialize();
+        });
     },
 
     addNewPosition(positionName) {
-      axios.post(PositionURL, { name: positionName }).then((result) => {
-        console.log(
-          `New position with id ${result.data} was successfully added`
-        );
-        this.positions.push({
-          positionId: result.data,
-          name: positionName,
+      axios
+        .post(PositionURL, { name: positionName })
+        .then((result) => {
+          console.log(
+            `New position with id ${result.data} was successfully added`
+          );
+          this.positions.push({
+            positionId: result.data,
+            name: positionName,
+          });
+        })
+        .catch((error) => {
+          this.showErrorMsg(error);
         });
-      });
     },
 
     removePosition(positionId) {
       const removePositionPath = PositionURL + "/" + positionId;
-      axios.delete(removePositionPath).then(() => {
-        console.log(`Position with id ${positionId} was successfully removed`);
-      });
+      axios
+        .delete(removePositionPath)
+        .then(() => {
+          console.log(
+            `Position with id ${positionId} was successfully removed`
+          );
+        })
+        .catch((error) => {
+          this.showErrorMsg(error);
+        });
+    },
+
+    showErrorMsg(error) {
+      console.error(error);
+
+      let errMsg = handleErrorMsg(error);
+
+      this.snackbar_text = errMsg;
+      this.snackbar = true;
     },
   },
 };

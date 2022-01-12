@@ -4,7 +4,7 @@
     :items="employees"
     :search="search"
     sort-by="fullname"
-    class="elevation-1 py-8 px-4"
+    class="py-8 px-4"
   >
     <template v-slot:top>
       <v-toolbar flat>
@@ -20,6 +20,29 @@
           single-line
           hide-details
         ></v-text-field>
+        <div>
+          <v-snackbar v-model="snackbar" :timeout="timeout" :multi-line="true">
+            {{ snackbar_text }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn
+                color="primary"
+                text
+                v-bind="attrs"
+                @click="snackbar = false"
+              >
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
+        </div>
+        <v-progress-linear
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          bottom
+          color="primary"
+        ></v-progress-linear>
         <v-dialog v-model="dialog" max-width="800px">
           <v-card>
             <v-card-title>
@@ -137,7 +160,13 @@
       </v-btn>
     </template>
     <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize"> Reset </v-btn>
+      <div v-if="!loading" class="text-center">
+        <h4>No employee data found</h4>
+        <v-btn color="primary" @click="initialize"> Reload data </v-btn>
+      </div>
+      <div v-if="loading" class="text-center">
+        <h4>Loading past employees...</h4>
+      </div>
     </template>
   </v-data-table>
 </template>
@@ -145,13 +174,20 @@
 <script>
 import { Employee } from "../classes/employee";
 import axios from "axios";
-import { PastEmployeeURL } from "../classes/common";
-import { PositionURL } from "../classes/common";
+import {
+  PastEmployeeURL,
+  PositionURL,
+  handleErrorMsg,
+} from "../classes/common";
 
 var _employee = new Employee();
 
 export default {
   data: () => ({
+    loading: false,
+    snackbar: false,
+    snackbar_text: "",
+    timeout: 3000,
     search: "",
     today: new Date().toISOString().substr(0, 10),
     dialog: false,
@@ -213,6 +249,7 @@ export default {
 
   methods: {
     initialize() {
+      this.loading = true;
       const posRequest = axios.get(PositionURL);
       const emplRequest = axios.get(PastEmployeeURL);
 
@@ -221,18 +258,17 @@ export default {
         .then(
           axios.spread((...responses) => {
             const positions = responses[0].data;
-            this.employees = responses[1].data;
+            const tmpEmployees = responses[1].data;
 
-            this.employees.forEach((el) => {
-              el.fullname = _employee.createFullName(el.name, el.surname);
-              el.positionName =
-                positions.find((p) => p.positionId === el.positionId)?.name ??
-                "";
+            tmpEmployees.forEach((el) => {
+              this.employees.push(_employee.fillMissingData(el, positions));
             });
+            this.loading = false;
           })
         )
         .catch((errors) => {
-          console.error(errors);
+          this.showErrorMsg(errors);
+          this.loading = false;
         });
     },
 
@@ -272,15 +308,26 @@ export default {
 
     removeEmployee(employeeId) {
       const removeEmployeePath = PastEmployeeURL + "/" + employeeId;
-      axios.delete(removeEmployeePath).then(() => {
-        console.log(
-          `Past Employee with id ${employeeId} was permanently removed`
-        );
-      });
+      axios
+        .delete(removeEmployeePath)
+        .then(() => {
+          console.log(
+            `Past Employee with id ${employeeId} was permanently removed`
+          );
+        })
+        .catch((error) => {
+          this.showErrorMsg(error);
+        });
+    },
+
+    showErrorMsg(error) {
+      console.error(error);
+
+      let errMsg = handleErrorMsg(error);
+
+      this.snackbar_text = errMsg;
+      this.snackbar = true;
     },
   },
 };
 </script>
-
-<style lang="sass" scoped>
-</style>

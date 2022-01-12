@@ -16,13 +16,5 @@ export default {
   components: {
     Navigation,
   },
-
-  data: () => ({
-    //
-  }),
 };
 </script>
-
-
-<style lang="scss">
-</style>
