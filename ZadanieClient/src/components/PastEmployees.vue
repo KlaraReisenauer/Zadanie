@@ -202,6 +202,7 @@ export default {
         value: "fullname",
       },
       { text: "Position", sortable: true, value: "positionName" },
+      { text: "End Date", sortable: true, value: "endDate" },
       { text: "", value: "actions", sortable: false },
     ],
     employees: [],
